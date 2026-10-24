@@ -201,7 +201,8 @@ CREATE TABLE IF NOT EXISTS digest (
 CREATE TABLE IF NOT EXISTS holiday (
     date            TEXT PRIMARY KEY,
     name            TEXT NOT NULL,
-    kind            TEXT NOT NULL DEFAULT 'public' CHECK (kind IN ('public','observed','special'))
+    kind            TEXT NOT NULL DEFAULT 'public' CHECK (kind IN ('public','observed','special')),
+    fetched         TEXT
 );
 
 -- ---------------------------------------------------------------------------

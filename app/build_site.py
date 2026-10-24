@@ -80,6 +80,9 @@ section.week{scroll-margin-top:10px}
 .day:target{background:#fff;outline:2px solid #141414;border-radius:10px;padding-left:8px;padding-right:8px;transition:background .2s}
 .widx{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px}
 .widx a{font-size:11.5px;color:#444;border:1px solid var(--line);background:#fff;border-radius:99px;padding:3px 9px;text-decoration:none}
+.tag.hol{background:#fde2e2;border:1px solid #e0a8a8;color:#7a2b2b}
+.tag.obs{background:#eef0f4;border:1px solid #d5d9e0;color:#555}
+.tag.lw{background:#fff3cd;border:1px solid #e5c97a;color:#6b5223}
 .big{display:inline-block;font-size:10px;background:#f1e7d6;border:1px solid #d9c6a3;color:#6b5223;border-radius:5px;padding:0 5px;vertical-align:2px}
 .about{margin:22px 0 10px;padding:14px;background:#fff;border:1px solid var(--line);border-radius:10px;font-size:12.5px;color:#444}
 .about h3{margin:0 0 6px;font-size:13.5px}
@@ -141,6 +144,17 @@ def build(con, today: dt.date, weeks: int = 8):
         e["start_date"] = dt.date.fromisoformat(e["start_date"])
         e["end_date"] = dt.date.fromisoformat(e["end_date"])
 
+    hol = {r["date"]: dict(r) for r in con.execute("SELECT date,name,kind FROM holiday")}
+    long_weekend = set()
+    for ds, h in hol.items():
+        if h["kind"] != "public":
+            continue
+        d0 = dt.date.fromisoformat(ds)
+        if d0.weekday() == 4:
+            long_weekend.update({(d0 + dt.timedelta(days=1)).isoformat(), (d0 + dt.timedelta(days=2)).isoformat()})
+        if d0.weekday() == 0:
+            long_weekend.update({(d0 - dt.timedelta(days=1)).isoformat(), (d0 - dt.timedelta(days=2)).isoformat()})
+
     days = {r["date"]: dict(r) for r in con.execute(
         "SELECT * FROM day_score WHERE date>=? AND date<?", (start.isoformat(), end.isoformat()))}
     hours = {}
@@ -155,6 +169,15 @@ def build(con, today: dt.date, weeks: int = 8):
             by_day.setdefault(d.isoformat(), []).append(e)
             d += dt.timedelta(days=1)
 
+    def hbadge(ds):
+        h = hol.get(ds)
+        if not h:
+            return '<span class="tag lw">หยุดยาว</span>' if ds in long_weekend else ""
+        cls = "hol" if h["kind"] == "public" else "obs"
+        label = "วันหยุด" if h["kind"] == "public" else "วันสำคัญ"
+        extra = ' <span class="tag lw">หยุดยาว</span>' if ds in long_weekend else ""
+        return '<span class="tag %s">%s · %s</span>%s' % (cls, label, esc(h["name"]), extra)
+
     def card(d):
         info = days.get(d.isoformat(), {})
         lvl = int(info.get("level", 0) or 0)
@@ -165,8 +188,8 @@ def build(con, today: dt.date, weeks: int = 8):
         return (
             '<div class="ncard"><div class="k">%s %d %s</div>'
             '<div class="t">%s</div>'
-            '<div class="m"><span class="pill lv%d">ระดับ %d · %s</span></div></div>'
-            % (TH_D[d.weekday()], d.day, TH_M[d.month], esc(t), lvl, lvl, LEVEL_TXT[lvl])
+            '<div class="m"><span class="pill lv%d">ระดับ %d · %s</span> %s</div></div>'
+            % (TH_D[d.weekday()], d.day, TH_M[d.month], esc(t), lvl, lvl, LEVEL_TXT[lvl], hbadge(d.isoformat()))
         )
 
     parts = []
@@ -199,12 +222,14 @@ def build(con, today: dt.date, weeks: int = 8):
         info = days.get(d.isoformat(), {})
         lvl = int(info.get("level", 0) or 0)
         n = len(by_day.get(d.isoformat(), []))
+        hname = (" · " + hol[d.isoformat()]["name"]) if d.isoformat() in hol else ""
+        lw = " · หยุดยาว" if d.isoformat() in long_weekend else ""
         if n:
-            parts.append('<a class="cell lv%d" href="#d-%s" title="%d %s · ระดับ %d · %d งาน · กดเพื่อดูรายการ">%d</a>'
-                         % (lvl, d.isoformat(), d.day, TH_M[d.month], lvl, n, d.day))
+            parts.append('<a class="cell lv%d" href="#d-%s" title="%d %s · ระดับ %d · %d งาน%s%s · กดเพื่อดูรายการ">%d</a>'
+                         % (lvl, d.isoformat(), d.day, TH_M[d.month], lvl, n, hname, lw, d.day))
         else:
-            parts.append('<div class="cell lv%d" title="%d %s · ไม่มีงาน">%d</div>'
-                         % (lvl, d.day, TH_M[d.month], d.day))
+            parts.append('<div class="cell lv%d" title="%d %s · ไม่มีงาน%s%s">%d</div>'
+                         % (lvl, d.day, TH_M[d.month], hname, lw, d.day))
         d += dt.timedelta(days=1)
     legend = "".join('<i class="dot lv%d"></i><span>%d %s</span>' % (i, i, LEVEL_TXT[i]) for i in range(5))
     parts.append('</div><div class="legend"><span>ระดับ:</span>%s<span style="margin-left:auto">กดวันที่เพื่อดูรายการ</span></div></section>' % legend)
@@ -288,9 +313,9 @@ def build(con, today: dt.date, weeks: int = 8):
             win = (" · คนแน่น " + " | ".join(seg)) if seg else ""
             parts.append('<div class="day" id="d-%s">' % dd.isoformat())
             parts.append('<div class="d">%s<b>%d</b>%s</div><div>' % (TH_D[dd.weekday()], dd.day, TH_M[dd.month]))
-            parts.append('<div class="dhead"><span class="pill lv%d">ระดับ %d · %s</span><span class="win">%s</span>'
+            parts.append('<div class="dhead"><span class="pill lv%d">ระดับ %d · %s</span>%s<span class="win">%s</span>'
                          '<a class="up" href="#heat" aria-label="กลับไปภาพรวม">↑ ภาพรวม</a></div>'
-                         % (lvl, lvl, LEVEL_TXT[lvl], esc(win)))
+                         % (lvl, lvl, LEVEL_TXT[lvl], hbadge(dd.isoformat()), esc(win)))
             starts = [e for e in items if e["start_date"] == dd]
             ongoing = [e for e in items if e["start_date"] < dd]
             if ongoing:
@@ -358,6 +383,7 @@ def build(con, today: dt.date, weeks: int = 8):
         '<li>วันที่ไม่แสดงในรายการ = ไม่มีงานในปฏิทิน</li>'
         '<li>งานอาจเลื่อน/ยกเลิกได้ — ตรวจสอบกับผู้จัดก่อนเดินทาง</li>'
         '<li>แหล่งข้อมูล: %s</li>'
+        '<li>วันหยุด/วันสำคัญ: ปฏิทิน Google สาธารณะ (วันหยุดราชการไทย)</li>'
         '<li>งานรอตรวจ (อาจซ้ำ/ข้อมูลไม่ครบ): %d รายการ</li>'
         '<li>การใช้งาน: นับ page view และคลิก .ics แบบไม่ใช้คุกกี้ ไม่ระบุตัวตน</li>'
         '<li>เพิ่มทั้งปฏิทิน: <a href="events.ics" data-goatcounter-click="ics-all">ดาวน์โหลด .ics</a></li></ul></section>'

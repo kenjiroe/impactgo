@@ -33,6 +33,7 @@ def level_of(raw: float) -> int:
 
 
 def recompute(con, start: dt.date, days: int = 70):
+    hol = {r["date"]: r["kind"] for r in con.execute("SELECT date,kind FROM holiday")}
     for i in range(days):
         d = start + dt.timedelta(days=i)
         rows = con.execute(
@@ -59,7 +60,7 @@ def recompute(con, start: dt.date, days: int = 70):
         raw = sum(v["w"] for v in by_venue.values())
         if n > 1:
             raw *= min(1.3, 1 + 0.1 * (n - 1))
-        if d.weekday() in (4, 5, 6):
+        if d.weekday() in (4, 5, 6) or hol.get(d.isoformat()) == "public":
             raw *= 1.15
 
         lvl = level_of(raw)

@@ -7,7 +7,7 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app import build_site, db, fetch, normalize as N, parse_exhibition, parse_impact, parse_ttm, score  # noqa: E402
+from app import build_site, db, fetch, holidays, normalize as N, parse_exhibition, parse_impact, parse_ttm, score  # noqa: E402
 
 BASE = "https://www.impact.co.th/th/visitors/event-calendar"
 TTM_URL = "https://m.thaiticketmajor.com/tag/Impact%20Arena"
@@ -134,6 +134,13 @@ def main():
     if len(all_events) < 10:
         print("[abort] parsed too few events — keep previous data")
         return 1
+
+    try:
+        n_hol = holidays.refresh(con, today=today)
+        if n_hol:
+            print(f"[holidays] refreshed {n_hol}")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[warn] holidays failed: {exc}")
 
     tentative = db.purge_missing(con, src, seen, today)
     score.recompute(con, today, 70)
