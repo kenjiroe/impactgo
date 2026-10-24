@@ -117,7 +117,7 @@ def make_ics(events, path, name="ImpactGo"):
             f"DESCRIPTION:{ics_escape(desc)}",
             f"URL:{e['detail_url'] or ''}",
             "BEGIN:VALARM",
-            "TRIGGER:-P1D",
+            "TRIGGER:-PT15H",
             "ACTION:DISPLAY",
             f"DESCRIPTION:{ics_escape('พรุ่งนี้มีงาน: ' + e['title'])}",
             "END:VALARM",
