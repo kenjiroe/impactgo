@@ -1,0 +1,19 @@
+%% ImpactGo — Pipeline & Daily Sequence
+flowchart LR
+    A["1 Fetch"] --> B["2 Snapshot + hash"]
+    B --> C["3 Parse → event_raw"]
+    C --> D["4 Normalize"]
+    D --> E["5 Identity / dedupe"]
+    E --> F["6 Enrich + Score"]
+    F --> G["7 Publish"]
+    G --> H["Web / XLSX / LINE / .ics"]
+
+    subgraph DAILY["ทุกวัน 06:00 และ 12:00"]
+        direction LR
+        T1["ดึงข้อมูล"] --> T2["parse + normalize"]
+        T2 --> T3["diff กับครั้งก่อน"]
+        T3 --> T4{"มีการเปลี่ยนแปลง?"}
+        T4 -- ใช่ --> T5["อัปเดต score + เข้าคิวตรวจ"]
+        T4 -- ไม่ --> T6["จบ (idempotent)"]
+        T5 --> T7["แจ้งเตือน/ส่ง digest"]
+    end

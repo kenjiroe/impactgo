@@ -1,0 +1,36 @@
+%% ImpactGo — Container Diagram
+flowchart TB
+    subgraph OPS["Ops"]
+        CRON["Cron 06:00 / 12:00"]
+        ALERT["Alert → LINE/Telegram"]
+    end
+
+    subgraph ING["1. Ingestion"]
+        F1["impact_fetcher"]
+        F2["ttm_fetcher"]
+        F3["exhibition_fetcher (Playwright)"]
+        RAW[("raw_document<br/>+ snapshots/")]
+    end
+
+    subgraph TRF["2–4. Transform"]
+        P1["parser"]
+        N1["normalizer<br/>venue · hall · category · time"]
+        D1["dedupe (fuzzy 0.80)"]
+        E1["enricher<br/>capacity · holiday"]
+    end
+
+    DB[("SQLite — impactgo.db")]
+
+    subgraph SRV["5. Serving"]
+        API["FastAPI /api/v1"]
+        WEB["Web SSR (Jinja2)"]
+        XLS["XLSX exporter"]
+        LINE["LINE push"]
+        ADM["Audit UI"]
+    end
+
+    CRON --> F1 & F2 & F3
+    F1 & F2 & F3 --> RAW --> P1 --> N1 --> D1 --> E1 --> DB
+    DB --> API
+    API --> WEB & XLS & LINE & ADM
+    DB --> ALERT

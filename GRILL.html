@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>ImpactGo — Grill Sheet (A4)</title>
+<style>
+  @page { size: A4 portrait; margin: 10mm 10mm 8mm 10mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Sarabun", "Noto Sans Thai", "Thonburi", "Helvetica Neue", sans-serif;
+    font-size: 9.7pt; line-height: 1.36; color: #111;
+  }
+  .sheet { width: 190mm; margin: 0 auto; }
+  header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #111; padding-bottom: 2mm; }
+  h1 { font-size: 14.5pt; margin: 0; letter-spacing: .2px; }
+  .sub { font-size: 8.3pt; color: #444; margin-top: 1mm; }
+  .meta { font-size: 8.3pt; text-align: right; line-height: 1.8; }
+  .fill { display: inline-block; border-bottom: 1px solid #777; min-width: 30mm; }
+  .fill.sm { min-width: 13mm; }
+  .strip { display: flex; gap: 1.5mm; margin: 2.6mm 0 1.6mm; }
+  .strip div { flex: 1; border: 1px solid #bbb; border-radius: 2px; padding: 1.2mm 1.5mm; font-size: 7.9pt; background: #f7f7f7; }
+  .strip b { font-size: 8.1pt; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 1mm; }
+  th { background: #111; color: #fff; font-size: 8.1pt; font-weight: 600; text-align: left; padding: 1.1mm 1.4mm; }
+  td { border: 1px solid #c9c9c9; padding: 1.25mm 1.45mm; vertical-align: top; }
+  td.n { width: 5mm; text-align: center; font-weight: 600; }
+  td.q { width: 89mm; }
+  td.a { width: 82mm; background: #fcfcfc; height: 9mm; }
+  td.v { width: 13mm; text-align: center; }
+  .box { display: inline-block; width: 3.7mm; height: 3.7mm; border: 1.1px solid #333; vertical-align: -0.6mm; }
+  .sec { font-size: 9.8pt; font-weight: 700; margin: 2.5mm 0 1mm; padding-left: 1.5mm; border-left: 3px solid #111; }
+  .hint { font-size: 7.5pt; color: #666; font-weight: 400; }
+  .rules { display: flex; gap: 2mm; margin-top: 2.6mm; align-items: stretch; }
+  .rules > div { border: 1.4px solid #111; padding: 1.8mm 2.2mm; }
+  .score { flex: 0 0 62mm; display: flex; flex-direction: column; }
+  .decide { flex: 1; }
+  .score .line { margin: 1.5mm 0; font-size: 8.8pt; }
+  .verdict { margin-top: auto; padding-top: 1.4mm; border-top: 1px solid #999; font-size: 8.7pt; }
+  .verdict span { display: inline-block; margin-right: 2.4mm; white-space: nowrap; }
+  .decide ul { margin: 1.2mm 0 0 4mm; padding: 0; font-size: 8.2pt; }
+  .decide li { margin-bottom: .8mm; }
+  .notes { margin-top: 2.2mm; border: 1px dashed #888; padding: 1.8mm 2.2mm; height: 17mm; }
+  .notes b { font-size: 8.2pt; }
+  .notes .ph { font-size: 7.3pt; color: #999; }
+  footer { margin-top: 1.8mm; font-size: 7.2pt; color: #555; border-top: 1px solid #ccc; padding-top: 1.2mm; display: flex; justify-content: space-between; }
+  .no-print { text-align: center; margin: 2mm 0 3mm; }
+  .no-print button { font: inherit; padding: 1.5mm 5mm; border: 1px solid #111; background: #111; color: #fff; border-radius: 3px; cursor: pointer; }
+  @media print { .no-print { display: none; } }
+</style>
+</head>
+<body>
+<div class="no-print"><button onclick="window.print()">พิมพ์ / บันทึกเป็น PDF (A4 1 หน้า)</button></div>
+
+<div class="sheet">
+  <header>
+    <div>
+      <h1>ImpactGo — GRILL SHEET</h1>
+      <div class="sub">ซักแผน 90 นาทีก่อนเริ่ม Sprint 0 · v1.0 · 24 ต.ค. 2026</div>
+    </div>
+    <div class="meta">
+      วันที่ <span class="fill"></span><br>
+      ผู้เข้าร่วม <span class="fill"></span>
+    </div>
+  </header>
+
+  <div class="strip">
+    <div><b>0–10 น.</b><br>ตั้งกรอบ: ห้ามตอบด้วยความเห็น</div>
+    <div><b>10–60 น.</b><br>ตอบ 12 ข้อ + จดหลักฐาน</div>
+    <div><b>60–75 น.</b><br>ให้คะแนน + ทวนหลักฐาน</div>
+    <div><b>75–90 น.</b><br>ตัดสิน: Go / แก้แผน / เลื่อน</div>
+  </div>
+
+  <div class="sec">ก. คุณค่าและตลาด <span class="hint">— ถ้าตอบไม่ได้ อย่าเพิ่งเขียนโค้ด</span></div>
+  <table>
+    <tr><th></th><th>คำถาม</th><th>คำตอบ + หลักฐาน (ตัวเลข/ชื่อ/วันที่/ลิงก์)</th><th>ผ่าน</th></tr>
+    <tr><td class="n">1</td><td class="q">ร้านค้าเสียเวลากี่ชั่วโมง/สัปดาห์กับการเดาตารางงาน?<div class="hint">ต้องมีตัวเลขจาก ≥3 ร้าน</div></td><td class="a"></td><td class="v"><span class="box"></span></td></tr>
+    <tr><td class="n">2</td><td class="q">ถ้าเลือกอย่างเดียว: “ตารางพีค 6 สัปดาห์” หรือ “แจ้งเตือนวันนี้” — เขาเลือกอะไร และยอมจ่ายไหม?</td><td class="a"></td><td class="v"><span class="box"></span></td></tr>
+    <tr><td class="n">3</td><td class="q">ในไทยมีใครเคยจ่ายเพื่อข้อมูลแบบนี้? ราคาเท่าไร?</td><td class="a"></td><td class="v"><span class="box"></span></td></tr>
+  </table>
+
+  <div class="sec">ข. ข้อมูลและกฎหมาย <span class="hint">— ข้อ 6 คือข้อที่อันตรายที่สุด</span></div>
+  <table>
+    <tr><td class="n">4</td><td class="q">ถ้าปฏิทินเปลี่ยนโครงสร้างพรุ่งนี้ ระบบพังนานแค่ไหน? ทดสอบจริงแล้วหรือยัง?</td><td class="a"></td><td class="v"><span class="box"></span></td></tr>
+    <tr><td class="n">5</td><td class="q">robots.txt / ToS ของ 3 โดเมนหลักอนุญาตให้ดึงหรือไม่? ตรวจครบหรือยัง?</td><td class="a"></td><td class="v"><span class="box"></span></td></tr>
+    <tr><td class="n">6</td><td class="q">ประมาณคนจาก “ความจุอาคาร” แม่น ±กี่ % ? มี ground truth กี่วัน?<div class="hint">ถ้าตอบไม่ได้ = ยังไม่ควรขายตัวเลขให้ร้านค้า</div></td><td class="a"></td><td class="v"><span class="box"></span></td></tr>
+  </table>
+
+  <div class="sec">ค. ปฏิบัติการ <span class="hint">— ระบบที่ต้องมีคนดูแลทุกสัปดาห์ต้องมีเจ้าภาพ</span></div>
+  <table>
+    <tr><td class="n">7</td><td class="q">curator คือใคร กี่ชม./สัปดาห์ และมีคนแทนตอนลาหรือไม่?</td><td class="a"></td><td class="v"><span class="box"></span></td></tr>
+    <tr><td class="n">8</td><td class="q">ถ้าข้อมูลผิดจนร้านสั่งของเกิน ใครรับผิดชอบ และ disclaimer ต้องเขียนว่าอะไร?</td><td class="a"></td><td class="v"><span class="box"></span></td></tr>
+    <tr><td class="n">9</td><td class="q">ต้นทุนจริง/เดือนรวมเวลาคน = ? (คิดชั่วโมงละ 300 บาท)</td><td class="a"></td><td class="v"><span class="box"></span></td></tr>
+  </table>
+
+  <div class="sec">ง. แผนและเวลา <span class="hint">— ต้องมีทางถอยถ้าพลาดพีค 5–8 พ.ย.</span></div>
+  <table>
+    <tr><td class="n">10</td><td class="q">ถ้าต้องส่ง MVP ใน 2 สัปดาห์ จะตัดอะไรออก? ตัดได้จริงหรือไม่?</td><td class="a"></td><td class="v"><span class="box"></span></td></tr>
+    <tr><td class="n">11</td><td class="q">ถ้าพลาดพีค 5–8 พ.ย. จะรู้ผลเมื่อไร และมี milestone สำรองหรือไม่?</td><td class="a"></td><td class="v"><span class="box"></span></td></tr>
+    <tr><td class="n">12</td><td class="q">“300 ผู้ใช้/สัปดาห์” วัดอย่างไรโดยไม่เก็บข้อมูลส่วนบุคคล? ระบุเครื่องมือ</td><td class="a"></td><td class="v"><span class="box"></span></td></tr>
+  </table>
+
+  <div class="rules">
+    <div class="score">
+      <div class="line">ตอบได้ <span class="fill sm"></span> / 12 ข้อ</div>
+      <div class="line">มีหลักฐานจริง <span class="fill sm"></span> / 4 ข้อขึ้นไป</div>
+      <div class="line">พลาดข้อ 1 / 2 / 6? <span class="box"></span> ใช่</div>
+      <div class="verdict">ผล: <span><span class="box"></span> Go</span><span><span class="box"></span> แก้แผน</span><span><span class="box"></span> เลื่อน</span></div>
+    </div>
+    <div class="decide">
+      <b>กฎตัดสิน (ใช้ก่อนปิดประชุม)</b>
+      <ul>
+        <li><b>Go</b> — ตอบได้ ≥9 ข้อ และมีหลักฐานจริง ≥4 ข้อ → เริ่ม Sprint 0 ตามแผน</li>
+        <li><b>แก้แผน</b> — ตอบได้ 7–8 ข้อ → เลื่อน 1 สัปดาห์ ทำ E1/E2 ให้เสร็จ แล้ว grill ซ้ำเฉพาะข้อที่ตก</li>
+        <li><b>เลื่อน</b> — ตอบได้ ≤6 ข้อ หรือพลาดข้อ 1, 2 หรือ 6 → ยังไม่เขียนโค้ด</li>
+        <li>ทุกข้อที่ติ๊ก “ผ่าน” ต้องเขียนหลักฐานเป็นประโยคเดียว: ใคร/เมื่อไร/ตัวเลขเท่าไร — ถ้าเขียนไม่ได้ ให้ถือว่าไม่ผ่าน</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="notes">
+    <b>บันทึก / ข้อที่ยังไม่ได้ตอบ</b> <span class="ph">— จดสิ่งที่ต้องไปหาคำตอบก่อน grill ครั้งถัดไป</span>
+  </div>
+
+  <footer>
+    <span>ImpactGo · /Users/ken/impactgo/GRILL.html</span>
+    <span>หลักการ: ถามให้เจ็บก่อน เพื่อไม่เจ็บตอนเปิดตัว</span>
+  </footer>
+</div>
+</body>
+</html>

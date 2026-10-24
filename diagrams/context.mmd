@@ -1,0 +1,27 @@
+%% ImpactGo — Context Diagram
+flowchart LR
+    S1["IMPACT Event Calendar<br/>HTML 2 หน้า"]
+    S2["ThaiTicketMajor<br/>Ticketmaster / Live Nation"]
+    S3["ThailandExhibition<br/>งานแสดงสินค้า"]
+    S4["Facebook ผู้จัด / มอลล์<br/>LINE @impactvenue (manual)"]
+    S5["ปฏิทินวันหยุด / MRT สายสีชมพู"]
+
+    subgraph IG["ImpactGo"]
+        CORE[("Data Core<br/>event · venue · day_score")]
+        SCORE["Scoring Engine<br/>0–4 + hour risk"]
+        OUT["Outputs<br/>Web · XLSX · LINE"]
+    end
+
+    M["ร้านค้า<br/>สั่งของ/จัดคน"]
+    V["ผู้มาชมงาน<br/>เลือกงาน/วัน"]
+    P["ผู้สัญจร<br/>เลี่ยงช่วงพีค"]
+
+    S1 --> CORE
+    S2 --> CORE
+    S3 --> CORE
+    S4 --> CORE
+    S5 --> SCORE
+    CORE --> SCORE --> OUT
+    OUT --> M
+    OUT --> V
+    OUT --> P
