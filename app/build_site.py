@@ -116,6 +116,11 @@ def make_ics(events, path, name="ImpactGo"):
             f"LOCATION:{ics_escape(e['venue_name'])}",
             f"DESCRIPTION:{ics_escape(desc)}",
             f"URL:{e['detail_url'] or ''}",
+            "BEGIN:VALARM",
+            "TRIGGER:-P1D",
+            "ACTION:DISPLAY",
+            f"DESCRIPTION:{ics_escape('พรุ่งนี้มีงาน: ' + e['title'])}",
+            "END:VALARM",
             "END:VEVENT",
         ]
     lines.append("END:VCALENDAR")
@@ -125,6 +130,7 @@ def make_ics(events, path, name="ImpactGo"):
 
 def build(con, today: dt.date, weeks: int = 8):
     goat = os.environ.get("GOATCOUNTER_CODE", "").strip()
+    site_url = os.environ.get("SITE_URL", "https://impactgo.netlify.app").rstrip("/")
     os.makedirs(SITE, exist_ok=True)
     os.makedirs(os.path.join(SITE, "ics"), exist_ok=True)
     start = today
@@ -386,8 +392,11 @@ def build(con, today: dt.date, weeks: int = 8):
         '<li>วันหยุด/วันสำคัญ: ปฏิทิน Google สาธารณะ (วันหยุดราชการไทย)</li>'
         '<li>งานรอตรวจ (อาจซ้ำ/ข้อมูลไม่ครบ): %d รายการ</li>'
         '<li>การใช้งาน: นับ page view และคลิก .ics แบบไม่ใช้คุกกี้ ไม่ระบุตัวตน</li>'
-        '<li>เพิ่มทั้งปฏิทิน: <a href="events.ics" data-goatcounter-click="ics-all">ดาวน์โหลด .ics</a></li></ul></section>'
-        % (dt.datetime.now().strftime("%d/%m/%Y %H:%M"), ", ".join(srcs), queued)
+        '<li>เพิ่มทั้งปฏิทิน: <a href="events.ics" data-goatcounter-click="ics-all">ดาวน์โหลด .ics</a>'
+        ' · <a href="webcal://%s/events.ics" data-goatcounter-click="webcal">สมัครรับ (webcal)</a></li>'
+        '<li>ไฟล์ .ics ตั้งเตือนล่วงหน้า 1 วันไว้ให้ (iPhone/Outlook เตือนตาม; Google อาจไม่รับ alarm ตอน import)</li></ul></section>'
+        % (dt.datetime.now().strftime("%d/%m/%Y %H:%M"), ", ".join(srcs), queued,
+           site_url.replace("https://", "").replace("http://", ""))
     )
     parts.append("</main>")
     parts.append('<footer>ImpactGo · ข้อมูลจาก impact.co.th · ไม่ใช่ข้อมูลทางการของอิมแพ็ค</footer>')

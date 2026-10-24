@@ -5,7 +5,7 @@
 - ฐานข้อมูล 44 งานที่ใช้งาน · คิวรอตรวจ 0 · audit log ทุกการแก้
 - หน้าเว็บ: 8 สัปดาห์ + heatmap (กดวันที่ได้) + ตัวกรอง + สัปดาห์นำทาง + งานยาว
 - ชั้นวันหยุด: วันหยุดราชการ/วันสำคัญ + ป้ายหยุดยาว + ใช้ถ่วงคะแนน
-- `.ics` ต่อรายการ + ทั้งชุด · ปุ่ม Google Calendar one-click
+- `.ics` ต่อรายการ + ทั้งชุด (มี VALARM เตือนล่วงหน้า 1 วัน) · webcal subscribe · Google Calendar one-click
 - หน้า curator (localhost:8081): รวม/แยก/ยกเลิก + rebuild อัตโนมัติ
 - Analytics แบบไม่ใช้คุกกี้ (GoatCounter code: `impactgo`)
 - Deploy ขึ้น Netlify แล้ว (แต่ยังเป็น build เก่า — ดูด้านล่าง)
