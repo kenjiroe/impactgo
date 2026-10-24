@@ -7,6 +7,7 @@
 - ชั้นวันหยุด: วันหยุดราชการ/วันสำคัญ + ป้ายหยุดยาว + ใช้ถ่วงคะแนน
 - `.ics` ต่อรายการ + ทั้งชุด (มี VALARM เตือนล่วงหน้า 1 วัน) · webcal subscribe · Google Calendar one-click
 - หน้า curator (localhost:8081): รวม/แยก/ยกเลิก + rebuild อัตโนมัติ
+- การ์ดภาพแชร์รายสัปดาห์ 1080×1080 (8 ใบ) + ปุ่มดาวน์โหลดบนหน้าเว็บ
 - Analytics แบบไม่ใช้คุกกี้ (GoatCounter code: `impactgo`)
 - Deploy ขึ้น Netlify แล้ว (แต่ยังเป็น build เก่า — ดูด้านล่าง)
 - เทสต์ 3 ชุดผ่าน (normalize / impact / ttm) ด้วย fixture คงที่

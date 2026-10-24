@@ -51,6 +51,8 @@ display:flex;align-items:flex-end;justify-content:center;padding:2px}
 .heat .dot{width:10px;height:10px;border-radius:3px;display:inline-block;background:var(--lv0)}
 .heat .dot.lv1{background:var(--lv1)}.heat .dot.lv2{background:var(--lv2)}
 .heat .dot.lv3{background:var(--lv3)}.heat .dot.lv4{background:var(--lv4)}
+.sharerow{margin:2px 0 8px}
+.sharebtn{display:inline-block;font-size:12.5px;text-decoration:none;color:#141414;border:1px solid #141414;border-radius:99px;padding:6px 12px;background:#fff}
 .filters{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
 .filters button{font:inherit;font-size:12.5px;padding:6px 11px;border-radius:99px;border:1px solid var(--line);
 background:#fff;color:#333;cursor:pointer}
@@ -240,6 +242,11 @@ def build(con, today: dt.date, weeks: int = 8):
     legend = "".join('<i class="dot lv%d"></i><span>%d %s</span>' % (i, i, LEVEL_TXT[i]) for i in range(5))
     parts.append('</div><div class="legend"><span>ระดับ:</span>%s<span style="margin-left:auto">กดวันที่เพื่อดูรายการ</span></div></section>' % legend)
 
+    share_png = os.path.join(SITE, "share", "week-%02d.png" % today.isocalendar()[1])
+    if os.path.exists(share_png):
+        parts.append('<div class="sharerow"><a class="sharebtn" href="share/week-%02d.png" target="_blank" '
+                     'data-goatcounter-click="share">ดาวน์โหลดการ์ดแชร์สัปดาห์นี้ (PNG)</a></div>'
+                     % today.isocalendar()[1])
     parts.append(
         '<div class="filters" role="group" aria-label="ตัวกรอง">'
         '<button data-f="all" aria-pressed="true">ทั้งหมด</button>'
