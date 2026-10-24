@@ -40,6 +40,8 @@ header p{margin:6px 0 0;color:#bdbdbd;font-size:12.5px}
 .heat h2{font-size:13px;margin:0 0 8px;color:var(--mut);font-weight:600}
 .heat .grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
 .heat .wd{font-size:10px;color:var(--mut);text-align:center;padding-bottom:2px}
+.heat a.cell{text-decoration:none}
+.heat a.cell:hover{outline:2px solid #141414;outline-offset:1px}
 .heat .cell{aspect-ratio:1;border-radius:5px;background:var(--lv0);font-size:10px;color:#333;
 display:flex;align-items:flex-end;justify-content:center;padding:2px}
 .heat .cell.blank{background:transparent}
@@ -60,6 +62,7 @@ background:#fff;color:#333;cursor:pointer}
 .day .d b{display:block;font-size:20px;color:var(--ink);line-height:1.1}
 .dhead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
 .dhead .win{font-size:11px;color:var(--mut)}
+.dhead .up{margin-left:auto;font-size:11px;color:#666;text-decoration:none}
 .ev{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-bottom:6px}
 .ev .ttl{font-size:14px;font-weight:600;margin:0 0 2px}
 .ev .meta{font-size:12px;color:var(--mut)}
@@ -73,6 +76,8 @@ background:#fff;color:#333;cursor:pointer}
 .ev.mini{background:#fbfbf8;border-style:dashed;padding:7px 10px}
 .ev.mini .ttl{font-size:12.5px;font-weight:600}
 section.week{scroll-margin-top:10px}
+.day{scroll-margin-top:14px}
+.day:target{background:#fff;outline:2px solid #141414;border-radius:10px;padding-left:8px;padding-right:8px;transition:background .2s}
 .widx{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px}
 .widx a{font-size:11.5px;color:#444;border:1px solid var(--line);background:#fff;border-radius:99px;padding:3px 9px;text-decoration:none}
 .big{display:inline-block;font-size:10px;background:#f1e7d6;border:1px solid #d9c6a3;color:#6b5223;border-radius:5px;padding:0 5px;vertical-align:2px}
@@ -184,7 +189,7 @@ def build(con, today: dt.date, weeks: int = 8):
     parts.append('<main class="wrap">')
     parts.append('<section class="now">%s%s</section>' % (card(today), card(today + dt.timedelta(days=1))))
 
-    parts.append('<section class="heat"><h2>ภาพรวม %d สัปดาห์</h2><div class="grid">' % weeks)
+    parts.append('<section class="heat" id="heat"><h2>ภาพรวม %d สัปดาห์</h2><div class="grid">' % weeks)
     for wd in TH_D:
         parts.append('<div class="wd">%s</div>' % wd)
     for _ in range(start.weekday()):
@@ -194,11 +199,15 @@ def build(con, today: dt.date, weeks: int = 8):
         info = days.get(d.isoformat(), {})
         lvl = int(info.get("level", 0) or 0)
         n = len(by_day.get(d.isoformat(), []))
-        parts.append('<div class="cell lv%d" title="%d %s · ระดับ %d · %d งาน">%d</div>'
-                     % (lvl, d.day, TH_M[d.month], lvl, n, d.day))
+        if n:
+            parts.append('<a class="cell lv%d" href="#d-%s" title="%d %s · ระดับ %d · %d งาน · กดเพื่อดูรายการ">%d</a>'
+                         % (lvl, d.isoformat(), d.day, TH_M[d.month], lvl, n, d.day))
+        else:
+            parts.append('<div class="cell lv%d" title="%d %s · ไม่มีงาน">%d</div>'
+                         % (lvl, d.day, TH_M[d.month], d.day))
         d += dt.timedelta(days=1)
     legend = "".join('<i class="dot lv%d"></i><span>%d %s</span>' % (i, i, LEVEL_TXT[i]) for i in range(5))
-    parts.append('</div><div class="legend"><span>ระดับ:</span>%s</div></section>' % legend)
+    parts.append('</div><div class="legend"><span>ระดับ:</span>%s<span style="margin-left:auto">กดวันที่เพื่อดูรายการ</span></div></section>' % legend)
 
     parts.append(
         '<div class="filters" role="group" aria-label="ตัวกรอง">'
@@ -277,9 +286,10 @@ def build(con, today: dt.date, weeks: int = 8):
             if _merge(hs, "out"):
                 seg.append("ออก " + ", ".join(_merge(hs, "out")))
             win = (" · คนแน่น " + " | ".join(seg)) if seg else ""
-            parts.append('<div class="day">')
+            parts.append('<div class="day" id="d-%s">' % dd.isoformat())
             parts.append('<div class="d">%s<b>%d</b>%s</div><div>' % (TH_D[dd.weekday()], dd.day, TH_M[dd.month]))
-            parts.append('<div class="dhead"><span class="pill lv%d">ระดับ %d · %s</span><span class="win">%s</span></div>'
+            parts.append('<div class="dhead"><span class="pill lv%d">ระดับ %d · %s</span><span class="win">%s</span>'
+                         '<a class="up" href="#heat" aria-label="กลับไปภาพรวม">↑ ภาพรวม</a></div>'
                          % (lvl, lvl, LEVEL_TXT[lvl], esc(win)))
             starts = [e for e in items if e["start_date"] == dd]
             ongoing = [e for e in items if e["start_date"] < dd]
