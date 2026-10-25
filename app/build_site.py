@@ -24,6 +24,16 @@ CSS = """
 body{margin:0;background:var(--bg);color:var(--ink);
 font-family:"Sarabun","Noto Sans Thai","Thonburi",system-ui,-apple-system,sans-serif;line-height:1.5}
 .wrap{max-width:820px;margin:0 auto;padding:0 16px}
+.hrow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.infobtn{flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:1px solid #666;background:transparent;color:#fff;font-family:Georgia,serif;font-style:italic;font-size:17px;line-height:1;cursor:pointer}
+.infobtn:hover{background:#fff;color:#111}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40}
+.help{position:fixed;z-index:41;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,460px);max-height:82vh;overflow:auto;background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.helphead{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #e3e3dd;position:sticky;top:0;background:#fff}
+.helphead h2{margin:0;font-size:16px}
+.helpclose{font:inherit;font-size:22px;line-height:1;background:none;border:0;cursor:pointer;padding:2px 6px}
+.helpbody{padding:12px 16px 18px;font-size:13px;color:#333}
+.helpbody p{margin:0 0 9px}
 header{background:#141414;color:#fff;padding:22px 0 18px;margin-bottom:14px}
 header h1{margin:0;font-size:22px;letter-spacing:.2px}
 header p{margin:6px 0 0;color:#bdbdbd;font-size:12.5px}
@@ -218,8 +228,10 @@ def build(con, today: dt.date, weeks: int = 8):
     parts.append('<meta name="impactgo-build" content="%s">' % build_id)
     parts.append("<style>%s</style></head><body>" % CSS)
     parts.append(
-        '<header><div class="wrap"><h1>ปฏิทินงาน เมืองทองธานี</h1>'
-        '<p>รวมงานล่วงหน้า %d สัปดาห์ · อัปเดต %s · ข้อมูลจากแหล่งสาธารณะ</p></div></header>'
+        '<header><div class="wrap hrow"><div><h1>ปฏิทินงาน เมืองทองธานี</h1>'
+        '<p>รวมงานล่วงหน้า %d สัปดาห์ · อัปเดต %s · ข้อมูลจากแหล่งสาธารณะ</p></div>'
+        '<button class="infobtn" id="infobtn" type="button" aria-label="วิธีใช้งาน" aria-expanded="false" data-goatcounter-click="help">i</button>'
+        '</div></header>'
         % (weeks, dt.datetime.now().strftime("%d/%m/%Y %H:%M"))
     )
     parts.append('<main class="wrap">')
@@ -413,6 +425,19 @@ def build(con, today: dt.date, weeks: int = 8):
            site_url.replace("https://", "").replace("http://", ""))
     )
     parts.append("</main>")
+    parts.append('''<div class="overlay" id="overlay" hidden></div>
+<div class="help" id="help" role="dialog" aria-modal="true" aria-labelledby="helptitle" hidden>
+  <div class="helphead"><h2 id="helptitle">วิธีใช้งาน</h2>
+    <button class="helpclose" id="helpclose" type="button" aria-label="ปิด">×</button></div>
+  <div class="helpbody">
+    <p><b>ปฏิทินนี้คืออะไร</b> — รวมงานล่วงหน้า 8 สัปดาห์ในเมืองทองธานี จาก 3 แหล่ง (อิมแพ็ค, ไทยทิคเก็ตเมเจอร์, ไทยแลนด์เอ็กซิบิชั่น)</p>
+    <p><b>ระดับ 0–4</b> — ประเมินความคึกคักจากขนาดอาคาร × ประเภทงาน × จำนวนงานซ้อน และวันหยุด <i>ไม่ใช่จำนวนคนจริง</i></p>
+    <p><b>กดช่องวันที่</b> ในภาพรวม เพื่อกระโดดไปรายการของวันนั้น วันที่ไม่มีงานจะกดไม่ได้</p>
+    <p><b>บันทึกลงปฏิทิน</b> — ปุ่มในแต่ละงานจะดาวน์โหลด .ics (ตั้งเตือน 09:00 ของวันก่อน) หรือกด Google Calendar เพื่อเพิ่มทันที</p>
+    <p><b>ติดตั้งบนมือถือ</b> — iOS: แชร์ → เพิ่มไปที่หน้าจอโฮม · Android: เมนู → ติดตั้งแอป</p>
+    <p><b>ข้อจำกัด</b> — ข้อมูลจากแหล่งสาธารณะ งานอาจเลื่อน/ยกเลิกได้ โปรดตรวจสอบกับผู้จัดก่อนเดินทาง</p>
+  </div>
+</div>''')
     parts.append('<footer>ImpactGo · ข้อมูลจาก impact.co.th · ไม่ใช่ข้อมูลทางการของอิมแพ็ค</footer>')
     parts.append(
         "<script>"
@@ -433,6 +458,12 @@ def build(con, today: dt.date, weeks: int = 8):
         "if(navigator.share){try{await navigator.share(data)}catch(e){}}"
         "else{try{await navigator.clipboard.writeText(url);sl.textContent='คัดลอกลิงก์แล้ว';}"
         "catch(e){window.prompt('คัดลอกลิงก์:',url)}}});}"
+        "const ib=document.getElementById('infobtn'),hp=document.getElementById('help'),ov=document.getElementById('overlay'),hc=document.getElementById('helpclose');"
+        "function openHelp(){hp.hidden=false;ov.hidden=false;ib.setAttribute('aria-expanded','true');hc.focus();}"
+        "function closeHelp(){hp.hidden=true;ov.hidden=true;ib.setAttribute('aria-expanded','false');}"
+        "if(ib){ib.addEventListener('click',openHelp);hc.addEventListener('click',closeHelp);ov.addEventListener('click',closeHelp);"
+        "document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHelp()});"
+        "if(location.hash==='#help')openHelp();}"
         "if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}"
         "</script></body></html>"
     )
