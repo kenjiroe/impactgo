@@ -8,6 +8,7 @@ from urllib.parse import quote
 from .db import ROOT
 
 SITE = os.path.join(ROOT, "site")
+GO_CHANNELS = ("line", "fb", "dm")
 TH_D = ["จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."]
 TH_M = ["", "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."]
 LEVEL_TXT = {0: "ว่าง", 1: "เบา", 2: "ปานกลาง", 3: "หนัก", 4: "หนักมาก"}
@@ -153,9 +154,26 @@ def make_ics(events, path, name="ImpactGo"):
         f.write("\r\n".join(lines))
 
 
+def build_go_pages(goat=""):
+    """landing วัดช่องทาง /go/<ช่อง>/ — นับ path ใน GoatCounter (no-JS pixel) แล้วพาเข้าหน้าหลัก (docs/ROADMAP.md #2)"""
+    for slug in GO_CHANNELS:
+        d = os.path.join(SITE, "go", slug)
+        os.makedirs(d, exist_ok=True)
+        pixel = '<img hidden alt="" src="https://%s.goatcounter.com/count?p=/go/%s">' % (goat, slug) if goat else ""
+        with open(os.path.join(d, "index.html"), "w", encoding="utf-8") as f:
+            f.write(
+                '<!doctype html><html lang="th"><head><meta charset="utf-8">'
+                '<meta name="viewport" content="width=device-width,initial-scale=1">'
+                "<title>ImpactGo — ปฏิทินงานเมืองทองธานี</title>"
+                '<meta http-equiv="refresh" content="1;url=../../">'
+                '</head><body><p style="font-family:system-ui,sans-serif">กำลังพาไปปฏิทิน… '
+                '<a href="../../">เปิดเอง</a></p>' + pixel + "</body></html>"
+            )
+
+
 def build(con, today: dt.date, weeks: int = 8):
     goat = os.environ.get("GOATCOUNTER_CODE", "").strip()
-    site_url = os.environ.get("SITE_URL", "https://impactgo.netlify.app").rstrip("/")
+    site_url = os.environ.get("SITE_URL", "https://kenjiroe.github.io/impactgo").rstrip("/")
     os.makedirs(SITE, exist_ok=True)
     os.makedirs(os.path.join(SITE, "ics"), exist_ok=True)
     start = today
@@ -531,6 +549,7 @@ def build(con, today: dt.date, weeks: int = 8):
     make_ics(evs, os.path.join(SITE, "events.ics"), "ปฏิทินงาน เมืองทองธานี")
     for e in evs:
         make_ics([e], os.path.join(SITE, "ics", "%s.ics" % e["id"]), e["title"])
+    build_go_pages(goat)
 
     payload = [{
         "id": e["id"], "title": e["title"], "venue": e["venue_code"], "venue_name": e["venue_name"],

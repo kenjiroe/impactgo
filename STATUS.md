@@ -18,6 +18,7 @@
 - Netlify: 301 redirect → Pages (ทุก path คงเดิม)
 - เทสต์ 4 ชุดผ่าน (normalize / impact / ttm / alert) ด้วย fixture คงที่
 - Alert เมื่อ scraper พัง: แหล่งเดียว fail 2 รอบติด / งานรวมลด >30% → LINE push (`app/alert.py`, env `LINE_PUSH_TOKEN`+`LINE_PUSH_TO` ไม่ตั้ง = ลง log)
+- Landing วัดช่องทาง `/go/line`, `/go/fb`, `/go/dm` — นับ path ใน GoatCounter แล้วพาเข้าหน้าหลัก (launch-kit ใช้ลิงก์เหล่านี้แล้ว)
 
 ## ค้างอยู่ (ติดสิทธิ์/บัญชี)
 1. **เริ่ม soft launch** ตาม `ops/launch-kit.md` (DM 10 ร้าน → LINE → Facebook)

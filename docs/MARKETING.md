@@ -81,7 +81,7 @@
 - GoatCounter → **Referrers** (LINE/FB มักไม่ส่ง referrer)
 - ถามตรงใน DM: “ทราบจากไหน”
 - บันทึกผลรายสัปดาห์ใน `ops/metrics.md`
-- ถ้าต้องการแยกช่องทางจริงจัง ค่อยทำ landing page `/go/line`, `/go/fb` เพื่อวัดแบบไม่พึ่ง referrer (แผน: [`ROADMAP.md`](ROADMAP.md) #2)
+- แยกยอดต่อช่องทาง: ใช้ลิงก์ `/go/line` (LINE กลุ่ม), `/go/fb` (Facebook), `/go/dm` (DM ร้าน) แทนลิงก์หลัก — LINE/FB ไม่ส่ง referrer จึงวัดผ่าน path นี้แทน (สร้างอัตโนมัติใน `build_site.py`)
 
 ## 8. สิ่งที่ห้าม
 

@@ -21,7 +21,7 @@
 | # | งาน | ทำไม | รูปแบบ | ขนาด |
 |---|---|---|---|---|
 | 1 | **Alert เมื่อ scraper พัง** — ✅ เสร็จ 25 ต.ค. (`app/alert.py` + hook ใน `run.py`) | เปิดตัวแล้วข้อมูลค้าง = ความเชื่อถือตายทันที (H4, R1 ใน `PLAN.md`) | ท้าย `run.py`: นับ fail ต่อเนื่องใน `data/alert_state.json` → fail 2 รอบติด / งานรวมลด >30% → push LINE หาตัวเอง (env `LINE_PUSH_TOKEN` + `LINE_PUSH_TO` เฉพาะเครื่อง ไม่เข้า CI) — ไม่ตั้ง env = ลง log อย่างเดียว | เสร็จแล้ว |
-| 2 | **Landing วัดช่องทาง `/go/line`, `/go/fb`, `/go/dm`** | แยกยอดต่อช่องทางแบบไม่พึ่ง referrer (`docs/MARKETING.md §7`) | หน้า HTML เล็กใน `site/go/<ช่อง>/` นับ path ใน GoatCounter แล้ว meta-refresh เข้าหน้าหลัก (Pages เป็น static จึงใช้ meta-refresh แทน 302) — ใส่ลิงก์นี้ใน launch-kit เฉพาะตอนจะวัดจริงจัง | ~1–2 ชม. |
+| 2 | **Landing วัดช่องทาง `/go/line`, `/go/fb`, `/go/dm`** — ✅ เสร็จ 25 ต.ค. (`build_site.build_go_pages`, launch-kit ใช้ลิงก์นี้แล้ว) | แยกยอดต่อช่องทางแบบไม่พึ่ง referrer (`docs/MARKETING.md §7`) | หน้า HTML เล็กใน `site/go/<ช่อง>/` นับ path ใน GoatCounter แล้ว meta-refresh เข้าหน้าหลัก (Pages เป็น static จึงใช้ meta-refresh แทน 302) | เสร็จแล้ว |
 
 ## 3. เฟส 2 — เริ่มได้เมื่อ 21 พ.ย. ผ่าน ≥2 เกณฑ์ (`PLAN-v0.5 §5`)
 

@@ -1,6 +1,6 @@
 # ตารางวัดผลรายสัปดาห์
 
-อ่านจาก https://impactgo.goatcounter.com (Paths: `/`, `ics`, `gcal`, `share`, `share-link`)
+อ่านจาก https://impactgo.goatcounter.com (Paths: `/`, `ics`, `gcal`, `share`, `share-link`, `/go/line`, `/go/fb`, `/go/dm`)
 
 | สัปดาห์ | วันที่ | pageviews | ics | gcal | share | หมายเหตุ |
 |---|---|---|---|---|---|---|

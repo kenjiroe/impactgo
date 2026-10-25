@@ -38,7 +38,7 @@ bash ops/check_live.sh   # เทียบ build ที่ deploy กับเ�
 | `app/db.py` | schema, upsert, dedupe helpers, review queue |
 | `app/score.py` | คะแนน 0–4 + ช่วงชั่วโมงเสี่ยง |
 | `app/holidays.py` | วันหยุดจาก Google ICS + cache 30 วัน |
-| `app/build_site.py` | สร้าง `site/index.html` + `.ics` + `data.json` |
+| `app/build_site.py` | สร้าง `site/index.html` + `.ics` + `data.json` + `go/<ช่อง>/` landing วัดช่องทาง |
 | `app/assets.py` | manifest, ไอคอน, service worker |
 | `app/share_card.py` | การ์ด PNG รายสัปดาห์ (HTML→Chrome) |
 | `app/curate.py` | ตรรกะ merge/keep/cancel + audit log |
