@@ -82,6 +82,8 @@ python3 tests/test_parse.py   # ทดสอบ parser ด้วย snapshot จ
 | [`FEASIBILITY.md`](FEASIBILITY.md) | ประเมินโอกาสสำเร็จ, การทดลองพิสูจน์, เกณฑ์ฆ่าโปรเจกต์ | ใช้ก่อนลงทุนเวลา |
 | [`DATA_SOURCES.md`](DATA_SOURCES.md) | แหล่งข้อมูล, วิธีดึง, ข้อจำกัด, กฎ normalization | ใช้ตอนเขียน scraper |
 | [`deploy/README.md`](deploy/README.md) | 3 วิธี deploy static + cron | ใช้ตอนเปิดสาธารณะ |
+| [`docs/DEV.md`](docs/DEV.md) | คู่มือนักพัฒนา: โครงสร้าง, data flow, env, deploy, troubleshoot | ใช้ตอนแก้โค้ด/รับช่วงต่อ |
+| [`docs/MARKETING.md`](docs/MARKETING.md) | คู่มือการตลาดรายช่องทาง + ปฏิทินเนื้อหา 14 วัน | ใช้ตอนปล่อยและทำการตลาด |
 | [`ops/runbook.md`](ops/runbook.md) | คู่มือปฏิบัติการ 1 หน้า | ใช้ตอนระบบมีปัญหา |
 | [`db/schema.sql`](db/schema.sql) | DDL SQLite พร้อม index และ view | ใช้วันแรกของ Sprint 0 |
 | [`GRILL.html`](GRILL.html) / `GRILL.pdf` | ใบซักแผน 12 ข้อ 1 หน้า A4 + กฎตัดสิน | ใช้ก่อนเริ่ม Sprint 0 (90 นาที) |
