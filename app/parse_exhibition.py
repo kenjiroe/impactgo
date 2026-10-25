@@ -61,7 +61,8 @@ def _map(row):
     if not title:
         return None
     menu = (at.get("menu_of_event") or "").lower()
-    if "concert" in title.lower():
+    tl = title.lower()
+    if any(k in tl for k in ("concert", "tour", "fancon")) or "คอนเสิร์ต" in menu:
         cat = "concert"
     elif "trade" in menu:
         cat = "trade"

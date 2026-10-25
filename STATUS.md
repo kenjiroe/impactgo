@@ -16,7 +16,7 @@
 - Analytics แบบไม่ใช้คุกกี้ (GoatCounter code: `impactgo`)
 - Deploy หลัก: **GitHub Pages** — https://kenjiroe.github.io/impactgo (อัปเดตอัตโนมัติ 06:00/12:00)
 - Netlify: 301 redirect → Pages (ทุก path คงเดิม)
-- เทสต์ 4 ชุดผ่าน (normalize / impact / ttm / alert) ด้วย fixture คงที่
+- เทสต์ 5 ชุดผ่าน (normalize / impact / ttm / alert / exhibition) ด้วย fixture และ dict จำลอง API
 - Alert เมื่อ scraper พัง: แหล่งเดียว fail 2 รอบติด / งานรวมลด >30% → LINE push (`app/alert.py`, env `LINE_PUSH_TOKEN`+`LINE_PUSH_TO` ไม่ตั้ง = ลง log)
 - Landing วัดช่องทาง `/go/line`, `/go/fb`, `/go/dm` — นับ path ใน GoatCounter แล้วพาเข้าหน้าหลัก (launch-kit ใช้ลิงก์เหล่านี้แล้ว)
 
