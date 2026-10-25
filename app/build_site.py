@@ -52,7 +52,7 @@ display:flex;align-items:flex-end;justify-content:center;padding:2px}
 .heat .dot.lv1{background:var(--lv1)}.heat .dot.lv2{background:var(--lv2)}
 .heat .dot.lv3{background:var(--lv3)}.heat .dot.lv4{background:var(--lv4)}
 .sharerow{margin:2px 0 8px}
-.sharebtn{display:inline-block;font-size:12.5px;text-decoration:none;color:#141414;border:1px solid #141414;border-radius:99px;padding:6px 12px;background:#fff}
+.sharebtn{display:inline-block;margin-right:6px;cursor:pointer;font-family:inherit;font-size:12.5px;text-decoration:none;color:#141414;border:1px solid #141414;border-radius:99px;padding:6px 12px;background:#fff}
 .filters{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
 .filters button{font:inherit;font-size:12.5px;padding:6px 11px;border-radius:99px;border:1px solid var(--line);
 background:#fff;color:#333;cursor:pointer}
@@ -245,7 +245,8 @@ def build(con, today: dt.date, weeks: int = 8):
     share_png = os.path.join(SITE, "share", "week-%02d.png" % today.isocalendar()[1])
     if os.path.exists(share_png):
         parts.append('<div class="sharerow"><a class="sharebtn" href="share/week-%02d.png" target="_blank" '
-                     'data-goatcounter-click="share">ดาวน์โหลดการ์ดแชร์สัปดาห์นี้ (PNG)</a></div>'
+                     'data-goatcounter-click="share">ดาวน์โหลดการ์ดแชร์สัปดาห์นี้ (PNG)</a>'
+                     '<button class="sharebtn" type="button" id="sharelink" data-goatcounter-click="share-link">แชร์ลิงก์</button></div>'
                      % today.isocalendar()[1])
     parts.append(
         '<div class="filters" role="group" aria-label="ตัวกรอง">'
@@ -420,6 +421,12 @@ def build(con, today: dt.date, weeks: int = 8):
         "const evs=[...d.querySelectorAll('.ev')];"
         "d.style.display=evs.some(e=>e.style.display!=='none')?'':'none';});"
         "}));"
+        "const sl=document.getElementById('sharelink');"
+        "if(sl){sl.addEventListener('click',async()=>{const url=location.href.split('#')[0];"
+        "const data={title:'ปฏิทินงาน เมืองทองธานี',text:'งานล่วงหน้า 8 สัปดาห์ + ระดับคนแน่น',url};"
+        "if(navigator.share){try{await navigator.share(data)}catch(e){}}"
+        "else{try{await navigator.clipboard.writeText(url);sl.textContent='คัดลอกลิงก์แล้ว';}"
+        "catch(e){window.prompt('คัดลอกลิงก์:',url)}}});}"
         "</script></body></html>"
     )
 

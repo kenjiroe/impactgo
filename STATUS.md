@@ -9,12 +9,11 @@
 - หน้า curator (localhost:8081): รวม/แยก/ยกเลิก + rebuild อัตโนมัติ
 - การ์ดภาพแชร์รายสัปดาห์ 1080×1080 (8 ใบ) + ปุ่มดาวน์โหลดบนหน้าเว็บ
 - Analytics แบบไม่ใช้คุกกี้ (GoatCounter code: `impactgo`)
-- Deploy ขึ้น Netlify แล้ว (แต่ยังเป็น build เก่า — ดูด้านล่าง)
+- Deploy ขึ้น Netlify แล้ว — https://impactgo.netlify.app (MATCH, analytics on)
 - เทสต์ 3 ชุดผ่าน (normalize / impact / ttm) ด้วย fixture คงที่
 
 ## ค้างอยู่ (ติดสิทธิ์/บัญชี)
-1. **อัปโหลด build ใหม่** — `dist/impactgo-site.zip` → Netlify site `impactgo` → Deploys → ลากโฟลเดอร์ `site`
-   ตรวจด้วย `bash ops/check_live.sh` ต้องได้ `MATCH`
+1. **อัปโหลด build ล่าสุด** (ปุ่มแชร์ลิงก์) — ทำครั้งเดียว แล้วเริ่ม soft launch ตาม `ops/launch-kit.md`
 2. **Auto-update** — ต้องมี GitHub repo แล้วเปิด Pages/Actions (workflow เตรียมไว้)
 3. **ลบ site เก่า `kenjiro`** บน GoatCounter (ถ้าไม่ใช้)
 
