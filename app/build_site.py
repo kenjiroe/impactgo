@@ -90,12 +90,22 @@ background:#fff;color:#333;cursor:pointer}
 section.week{scroll-margin-top:10px}
 .day{scroll-margin-top:14px}
 .day:target{background:#fff;outline:2px solid #141414;border-radius:10px;padding-left:8px;padding-right:8px;transition:background .2s}
+.wctl{display:flex;gap:6px;margin:2px 0 6px}
+.wctl button{font:inherit;font-size:11.5px;padding:5px 10px;border-radius:99px;border:1px solid var(--line);background:#fff;cursor:pointer;color:#444}
 .widx{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px}
 .widx a{font-size:11.5px;color:#444;border:1px solid var(--line);background:#fff;border-radius:99px;padding:3px 9px;text-decoration:none}
 .tag.hol{background:#fde2e2;border:1px solid #e0a8a8;color:#7a2b2b}
 .tag.obs{background:#eef0f4;border:1px solid #d5d9e0;color:#555}
 .tag.lw{background:#fff3cd;border:1px solid #e5c97a;color:#6b5223}
 .big{display:inline-block;font-size:10px;background:#f1e7d6;border:1px solid #d9c6a3;color:#6b5223;border-radius:5px;padding:0 5px;vertical-align:2px}
+.week{scroll-margin-top:10px;margin:0 0 4px}
+details.week>summary{list-style:none;cursor:pointer;display:flex;gap:10px;align-items:baseline;padding:12px 0;border-top:1px solid var(--line)}
+details.week>summary::-webkit-details-marker{display:none}
+.wtitle{font-size:13px;color:var(--mut);font-weight:600;white-space:nowrap}
+.wsum{font-size:11.5px;color:#8a8a82;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.chev{margin-left:auto;font-size:12px;color:#999;transition:transform .15s}
+details[open]>summary .chev{transform:rotate(180deg)}
+.totop{position:fixed;right:16px;bottom:18px;width:44px;height:44px;border-radius:50%;border:1px solid #141414;background:#141414;color:#fff;font-size:18px;cursor:pointer;z-index:30;box-shadow:0 6px 18px rgba(0,0,0,.2)}
 .about{margin:22px 0 10px;padding:14px;background:#fff;border:1px solid var(--line);border-radius:10px;font-size:12.5px;color:#444}
 .about h3{margin:0 0 6px;font-size:13.5px}
 .about ul{margin:6px 0 0 18px;padding:0}
@@ -296,10 +306,13 @@ def build(con, today: dt.date, weeks: int = 8):
             idx.append(_ws)
         _c = _ws + dt.timedelta(days=7)
     if idx:
+        parts.append('<div class="wctl"><button type="button" id="expandall">ขยายทั้งหมด</button>'
+                     '<button type="button" id="collapseall">ย่อทั้งหมด</button></div>')
         parts.append('<nav class="widx" aria-label="ข้ามไปสัปดาห์">%s</nav>' % "".join(
             '<a href="#w%d">%s</a>' % (w.isocalendar()[1],
                                        ("สัปดาห์นี้" if w <= start else "%d %s" % (w.day, TH_M[w.month]))) for w in idx))
 
+    week_i = 0
     cur = start
     while cur < end:
         ws = cur - dt.timedelta(days=cur.weekday())
@@ -314,7 +327,18 @@ def build(con, today: dt.date, weeks: int = 8):
             label = "%d–%d %s" % (ws.day, we.day, TH_M[ws.month])
         else:
             label = "%d %s – %d %s" % (ws.day, TH_M[ws.month], we.day, TH_M[we.month])
-        parts.append('<section class="week" id="w%d"><h2>สัปดาห์ที่ %d · %s</h2>' % (ws.isocalendar()[1], ws.isocalendar()[1], label))
+        ev_days = [x for x in week_days if by_day.get(x.isoformat())]
+        lvmax = max([int(days.get(x.isoformat(), {}).get("level", 0) or 0) for x in ev_days] or [0])
+        first = by_day[ev_days[0].isoformat()][0]["title"] if ev_days else ""
+        if ev_days:
+            short = first if len(first) <= 34 else first[:33] + "…"
+            wsum = "%d วันมีงาน · สูงสุดระดับ %d · %s" % (len(ev_days), lvmax, short)
+        else:
+            wsum = "ว่างทั้งสัปดาห์"
+        week_i += 1
+        parts.append('<details class="week" id="w%d"%s><summary><span class="wtitle">สัปดาห์ที่ %d · %s</span>'
+                     '<span class="wsum">%s</span><span class="chev">▾</span></summary>'
+                     % (ws.isocalendar()[1], " open" if week_i == 1 else "", ws.isocalendar()[1], label, esc(wsum)))
         any_event = False
         for dd in week_days:
             items = by_day.get(dd.isoformat(), [])
@@ -399,7 +423,7 @@ def build(con, today: dt.date, weeks: int = 8):
             parts.append("</div></div>")
         if not any_event:
             parts.append('<div class="none">ว่างทั้งสัปดาห์</div>')
-        parts.append("</section>")
+        parts.append("</details>")
         cur = ws + dt.timedelta(days=7)
 
     queued = con.execute("SELECT count(*) c FROM review_queue WHERE resolved_at IS NULL").fetchone()["c"]
@@ -425,6 +449,7 @@ def build(con, today: dt.date, weeks: int = 8):
            site_url.replace("https://", "").replace("http://", ""))
     )
     parts.append("</main>")
+    parts.append('<button class="totop" id="totop" type="button" aria-label="กลับด้านบน" hidden>↑</button>')
     parts.append('''<div class="overlay" id="overlay" hidden></div>
 <div class="help" id="help" role="dialog" aria-modal="true" aria-labelledby="helptitle" hidden>
   <div class="helphead"><h2 id="helptitle">วิธีใช้งาน</h2>
@@ -464,6 +489,15 @@ def build(con, today: dt.date, weeks: int = 8):
         "if(ib){ib.addEventListener('click',openHelp);hc.addEventListener('click',closeHelp);ov.addEventListener('click',closeHelp);"
         "document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHelp()});"
         "if(location.hash==='#help')openHelp();}"
+        "const tt=document.getElementById('totop');"
+        "if(tt){addEventListener('scroll',()=>{tt.hidden=scrollY<600},{passive:true});"
+        "tt.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));}"
+        "function openHash(){const h=location.hash;if(!h||h==='#help')return;const el=document.querySelector(h);if(!el)return;const d=el.closest('details');if(d)d.open=true;el.scrollIntoView();}"
+        "addEventListener('load',openHash);addEventListener('hashchange',openHash);"
+        "document.querySelectorAll('.widx a').forEach(a=>a.addEventListener('click',()=>{const t=document.querySelector(a.getAttribute('href'));if(t&&t.tagName==='DETAILS')t.open=true;}));"
+        "const ea=document.getElementById('expandall'),ca=document.getElementById('collapseall');"
+        "if(ea)ea.addEventListener('click',()=>document.querySelectorAll('details.week').forEach(d=>d.open=true));"
+        "if(ca)ca.addEventListener('click',()=>document.querySelectorAll('details.week').forEach(d=>d.open=false));"
         "if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}"
         "</script></body></html>"
     )
