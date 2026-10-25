@@ -46,23 +46,23 @@ header p{margin:6px 0 0;color:#bdbdbd;font-size:12.5px}
 .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;color:#111;background:var(--lv0)}
 .pill.lv1{background:var(--lv1)}.pill.lv2{background:var(--lv2)}
 .pill.lv3{background:var(--lv3);color:#fff}.pill.lv4{background:var(--lv4);color:#fff}
-.heat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:0 0 14px}
-.heat h2{font-size:13px;margin:0 0 8px;color:var(--mut);font-weight:600}
-.heat .grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
-.heat .wd{font-size:10px;color:var(--mut);text-align:center;padding-bottom:2px}
-.heat a.cell{text-decoration:none}
-.heat a.cell:hover{outline:2px solid #141414;outline-offset:1px}
-.heat .cell{aspect-ratio:1;border-radius:5px;background:var(--lv0);font-size:10px;color:#333;
-display:flex;align-items:flex-end;justify-content:center;padding:2px}
+.heat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 12px}
+.heat h2{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin:0 0 6px;color:var(--mut);font-weight:600}
+.heatbtn{font:inherit;font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);background:#fff;color:#555;cursor:pointer}
+.heat .grid[hidden],.heat .legend[hidden]{display:none}
+.heat .grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.heat .wd{font-size:9.5px;color:var(--mut);text-align:center;padding-bottom:1px}
+.heat .cell{position:relative;height:31px;border-radius:5px;background:var(--lv0);font-size:11px;color:#333;display:flex;align-items:center;justify-content:center;text-decoration:none;font-weight:600}
+.heat .cell .cnt{position:absolute;bottom:1px;right:3px;font-size:8px;font-weight:700;font-style:normal;opacity:.55;line-height:1}
 .heat .cell.blank{background:transparent}
 .heat .cell.lv1{background:var(--lv1)}.heat .cell.lv2{background:var(--lv2)}
 .heat .cell.lv3{background:var(--lv3);color:#fff}.heat .cell.lv4{background:var(--lv4);color:#fff}
-.heat .legend{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;font-size:11px;color:var(--mut)}
-.heat .dot{width:10px;height:10px;border-radius:3px;display:inline-block;background:var(--lv0)}
+.heat .legend{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:7px;font-size:10.5px;color:var(--mut)}
+.heat .dot{width:9px;height:9px;border-radius:3px;display:inline-block;background:var(--lv0)}
 .heat .dot.lv1{background:var(--lv1)}.heat .dot.lv2{background:var(--lv2)}
 .heat .dot.lv3{background:var(--lv3)}.heat .dot.lv4{background:var(--lv4)}
-.sharerow{margin:2px 0 8px}
-.sharebtn{display:inline-block;margin-right:6px;cursor:pointer;font-family:inherit;font-size:12.5px;text-decoration:none;color:#141414;border:1px solid #141414;border-radius:99px;padding:6px 12px;background:#fff}
+.sharerow{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 8px}
+.sharebtn{display:inline-block;margin-right:0;cursor:pointer;font-family:inherit;font-size:12.5px;text-decoration:none;color:#141414;border:1px solid #141414;border-radius:99px;padding:8px 13px;background:#fff}
 .filters{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
 .filters button{font:inherit;font-size:12.5px;padding:8px 13px;min-height:38px;border-radius:99px;border:1px solid var(--line);
 background:#fff;color:#333;cursor:pointer}
@@ -247,7 +247,8 @@ def build(con, today: dt.date, weeks: int = 8):
     parts.append('<main class="wrap">')
     parts.append('<section class="now">%s%s</section>' % (card(today), card(today + dt.timedelta(days=1))))
 
-    parts.append('<section class="heat" id="heat"><h2>ภาพรวม %d สัปดาห์</h2><div class="grid">' % weeks)
+    parts.append('<section class="heat" id="heat"><h2><span>ภาพรวม %d สัปดาห์</span>'
+                 '<button type="button" id="heattoggle" class="heatbtn">ซ่อน</button></h2><div class="grid">' % weeks)
     for wd in TH_D:
         parts.append('<div class="wd">%s</div>' % wd)
     for _ in range(start.weekday()):
@@ -259,11 +260,13 @@ def build(con, today: dt.date, weeks: int = 8):
         n = len(by_day.get(d.isoformat(), []))
         hname = (" · " + hol[d.isoformat()]["name"]) if d.isoformat() in hol else ""
         lw = " · หยุดยาว" if d.isoformat() in long_weekend else ""
+        cnt = '<i class="cnt">%d</i>' % n if n >= 2 else ""
         if n:
-            parts.append('<a class="cell lv%d" href="#d-%s" title="%d %s · ระดับ %d · %d งาน%s%s · กดเพื่อดูรายการ">%d</a>'
-                         % (lvl, d.isoformat(), d.day, TH_M[d.month], lvl, n, hname, lw, d.day))
+            parts.append('<a class="cell lv%d" href="#d-%s" title="%d %s · ระดับ %d · %d งาน%s%s · กดเพื่อดูรายการ">'
+                         '<span>%d</span>%s</a>'
+                         % (lvl, d.isoformat(), d.day, TH_M[d.month], lvl, n, hname, lw, d.day, cnt))
         else:
-            parts.append('<div class="cell lv%d" title="%d %s · ไม่มีงาน%s%s">%d</div>'
+            parts.append('<div class="cell lv%d" title="%d %s · ไม่มีงาน%s%s"><span>%d</span></div>'
                          % (lvl, d.day, TH_M[d.month], hname, lw, d.day))
         d += dt.timedelta(days=1)
     legend = "".join('<i class="dot lv%d"></i><span>%d %s</span>' % (i, i, LEVEL_TXT[i]) for i in range(5))
@@ -489,6 +492,8 @@ def build(con, today: dt.date, weeks: int = 8):
         "if(ib){ib.addEventListener('click',openHelp);hc.addEventListener('click',closeHelp);ov.addEventListener('click',closeHelp);"
         "document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHelp()});"
         "if(location.hash==='#help')openHelp();}"
+        "const hb=document.getElementById('heattoggle'),hg=document.querySelector('.heat .grid'),hl=document.querySelector('.heat .legend');"
+        "if(hb){hb.addEventListener('click',()=>{const hide=!hg.hidden;hg.hidden=hide;if(hl)hl.hidden=hide;hb.textContent=hide?'แสดง':'ซ่อน';});}"
         "const tt=document.getElementById('totop');"
         "if(tt){addEventListener('scroll',()=>{tt.hidden=scrollY<600},{passive:true});"
         "tt.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));}"

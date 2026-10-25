@@ -11,6 +11,7 @@
 - PWA-lite: manifest + ไอคอน + service worker (network-first) + ปุ่มติดตั้งบนมือถือ
 - ปุ่ม i → แผง "วิธีใช้งาน" (ESC/แตะพื้นหลังปิด, เปิดผ่าน #help ได้)
 - พับสัปดาห์ (เปิดสัปดาห์นี้) + ขยาย/ย่อทั้งหมด + ปุ่มลอยกลับด้านบน
+- heatmap กระชับ (31px/ช่อง) + ตัวเลขนับงาน + ปุ่มซ่อน/แสดง
 - Analytics แบบไม่ใช้คุกกี้ (GoatCounter code: `impactgo`)
 - Deploy ขึ้น Netlify แล้ว — https://impactgo.netlify.app (MATCH, analytics on)
 - เทสต์ 3 ชุดผ่าน (normalize / impact / ttm) ด้วย fixture คงที่
