@@ -15,13 +15,13 @@
 - ขอบเขต 12 สัปดาห์ (3 เดือน) — ครอบงาน ม.ค. 2027
 - Analytics แบบไม่ใช้คุกกี้ (GoatCounter code: `impactgo`)
 - Deploy หลัก: **GitHub Pages** — https://kenjiroe.github.io/impactgo (อัปเดตอัตโนมัติ 06:00/12:00)
-- Netlify (สำรอง): https://impactgo.netlify.app
+- Netlify: 301 redirect → Pages (ทุก path คงเดิม)
 - เทสต์ 3 ชุดผ่าน (normalize / impact / ttm) ด้วย fixture คงที่
 
 ## ค้างอยู่ (ติดสิทธิ์/บัญชี)
-1. **อัปโหลด build ล่าสุด** (ปุ่มแชร์ลิงก์) — ทำครั้งเดียว แล้วเริ่ม soft launch ตาม `ops/launch-kit.md`
-2. **Auto-update** — ต้องมี GitHub repo แล้วเปิด Pages/Actions (workflow เตรียมไว้)
-3. **ลบ site เก่า `kenjiro`** บน GoatCounter (ถ้าไม่ใช้)
+1. **เริ่ม soft launch** ตาม `ops/launch-kit.md` (DM 10 ร้าน → LINE → Facebook)
+2. **ลบ site เก่า `kenjiro`** บน GoatCounter (ถ้าไม่ใช้)
+3. **ตัดสินใจ custom domain** (ถ้าต้องการ URL ที่จำง่ายกว่า)
 
 ## ตัวชี้วัดที่จะเริ่มนับเมื่อ deploy ใหม่
 | ตัวชี้วัด | เกณฑ์ผ่าน (4 สัปดาห์) | ที่มา |

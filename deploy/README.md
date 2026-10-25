@@ -1,5 +1,9 @@
 # Deploy — 3 ทางเลือก (ไม่ต้องมีเซิร์ฟเวอร์)
 
+> **สถานะปัจจุบัน:** ใช้ **GitHub Pages** เป็นหลัก (auto ทุก 06:00/12:00)
+> Netlify ถูกตั้งเป็น **301 redirect** ไป Pages ด้วยไฟล์ `deploy/netlify-redirect/_redirects`
+> ถ้าจะยกเลิก redirect: อัปโหลด `dist/impactgo-site.zip` กลับเข้า Netlify
+
 เว็บเป็น **static** ทั้งหมด (`site/`) — ไม่มีฐานข้อมูลบนเซิร์ฟเวอร์ ไม่มี secret
 สร้างใหม่ด้วย `./run.sh` แล้วอัปโหลดโฟลเดอร์ `site/`
 
