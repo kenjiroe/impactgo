@@ -155,7 +155,7 @@ def main():
         print(f"[share] {len(cards)} cards")
     except Exception as exc:  # noqa: BLE001
         print(f"[warn] share cards failed: {exc}")
-    n = build_site.build(con, today, weeks=8)
+    n = build_site.build(con, today, weeks=12)
     con.commit()
 
     lv = dict(con.execute("SELECT level, count(*) c FROM day_score WHERE date>=? GROUP BY level", (today.isoformat(),)).fetchall())

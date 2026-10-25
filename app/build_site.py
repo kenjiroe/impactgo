@@ -49,7 +49,10 @@ header p{margin:6px 0 0;color:#bdbdbd;font-size:12.5px}
 .heat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 12px}
 .heat h2{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin:0 0 6px;color:var(--mut);font-weight:600}
 .heatbtn{font:inherit;font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);background:#fff;color:#555;cursor:pointer}
-.heat .grid[hidden],.heat .legend[hidden]{display:none}
+.heat .months{display:flex;gap:5px;flex-wrap:wrap;margin:0 0 6px}
+.heat .mchip{font-size:10.5px;color:#666;background:#f4f4ef;border:1px solid #e6e6de;border-radius:99px;padding:2px 8px}
+.heat .mchip b{color:#141414}
+.heat .grid[hidden],.heat .legend[hidden],.heat .months[hidden]{display:none}
 .heat .grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
 .heat .wd{font-size:9.5px;color:var(--mut);text-align:center;padding-bottom:1px}
 .heat .cell{position:relative;height:31px;border-radius:5px;background:var(--lv0);font-size:11px;color:#333;display:flex;align-items:center;justify-content:center;text-decoration:none;font-weight:600}
@@ -248,7 +251,19 @@ def build(con, today: dt.date, weeks: int = 8):
     parts.append('<section class="now">%s%s</section>' % (card(today), card(today + dt.timedelta(days=1))))
 
     parts.append('<section class="heat" id="heat"><h2><span>ภาพรวม %d สัปดาห์</span>'
-                 '<button type="button" id="heattoggle" class="heatbtn">ซ่อน</button></h2><div class="grid">' % weeks)
+                 '<button type="button" id="heattoggle" class="heatbtn">ซ่อน</button></h2>' % weeks)
+    months = []
+    d0 = start
+    while d0 < end:
+        key = (d0.year, d0.month)
+        if not months or months[-1][0] != key:
+            months.append([key, 0, 0])
+        months[-1][1] += 1
+        if by_day.get(d0.isoformat()):
+            months[-1][2] += 1
+        d0 += dt.timedelta(days=1)
+    parts.append('<div class="months">%s</div><div class="grid">' % "".join(
+        '<span class="mchip">%s <b>%d</b> วันมีงาน</span>' % (TH_M[m[0][1]], m[2]) for m in months))
     for wd in TH_D:
         parts.append('<div class="wd">%s</div>' % wd)
     for _ in range(start.weekday()):
@@ -492,8 +507,9 @@ def build(con, today: dt.date, weeks: int = 8):
         "if(ib){ib.addEventListener('click',openHelp);hc.addEventListener('click',closeHelp);ov.addEventListener('click',closeHelp);"
         "document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHelp()});"
         "if(location.hash==='#help')openHelp();}"
-        "const hb=document.getElementById('heattoggle'),hg=document.querySelector('.heat .grid'),hl=document.querySelector('.heat .legend');"
-        "if(hb){hb.addEventListener('click',()=>{const hide=!hg.hidden;hg.hidden=hide;if(hl)hl.hidden=hide;hb.textContent=hide?'แสดง':'ซ่อน';});}"
+        "const hb=document.getElementById('heattoggle'),hg=document.querySelector('.heat .grid'),hl=document.querySelector('.heat .legend'),hm=document.querySelector('.heat .months');"
+        "if(hb){hb.addEventListener('click',()=>{const hide=!hg.hidden;hg.hidden=hide;if(hl)hl.hidden=hide;if(hm)hm.hidden=hide;hb.textContent=hide?'แสดง':'ซ่อน';});"
+        "if(window.innerWidth<640){hg.hidden=true;if(hl)hl.hidden=true;if(hm)hm.hidden=true;hb.textContent='แสดง';}}"
         "const tt=document.getElementById('totop');"
         "if(tt){addEventListener('scroll',()=>{tt.hidden=scrollY<600},{passive:true});"
         "tt.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));}"
