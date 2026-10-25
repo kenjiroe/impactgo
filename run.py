@@ -7,11 +7,12 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app import assets, build_site, db, fetch, holidays, normalize as N, parse_exhibition, parse_impact, parse_ttm, score, share_card  # noqa: E402
+from app import alert, assets, build_site, db, fetch, holidays, normalize as N, parse_exhibition, parse_impact, parse_ttm, score, share_card  # noqa: E402
 
 BASE = "https://www.impact.co.th/th/visitors/event-calendar"
 TTM_URL = "https://m.thaiticketmajor.com/tag/Impact%20Arena"
 SNAP = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "snapshots")
+ALERT_STATE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "alert_state.json")
 
 
 def main():
@@ -61,6 +62,7 @@ def main():
 
     # ---- แหล่งที่ 2: ThaiTicketMajor ----
     ttm_src = db.source_id(con, "ttm")
+    ttm_ok = False
     try:
         status, data = fetch.fetch_curl(TTM_URL)
         digest, path = fetch.save_snapshot(data, SNAP, "ttm-p1")
@@ -100,11 +102,13 @@ def main():
             seen.add(str(eid))
         con.commit()
         print(f"[ttm] {len(ttm_events)} upcoming, merged={merged}, new={added}")
+        ttm_ok = True
     except Exception as exc:  # noqa: BLE001
         print(f"[warn] ttm failed: {exc}")
 
     # ---- แหล่งที่ 3: ThailandExhibition (API) ----
     ex_src = db.source_id(con, "exhibition")
+    ex_ok = False
     try:
         ex_events = [e for e in parse_exhibition.fetch_events(since=today - dt.timedelta(days=1)) if e["end"] >= today]
         added, merged, queued = 0, 0, 0
@@ -128,11 +132,14 @@ def main():
                     queued += 1
         con.commit()
         print(f"[exhibition] {len(ex_events)} upcoming, merged={merged}, new={added}, queued={queued}")
+        ex_ok = True
     except Exception as exc:  # noqa: BLE001
         print(f"[warn] exhibition failed: {exc}")
 
     if len(all_events) < 10:
         print("[abort] parsed too few events — keep previous data")
+        _, msgs = alert.end_of_run(ALERT_STATE, {"impact": False, "ttm": ttm_ok, "exhibition": ex_ok})
+        alert.notify(msgs)
         return 1
 
     try:
@@ -162,6 +169,8 @@ def main():
     print(f"[done] events={n} (new this run: {len(all_events)}) missing→tentative={tentative}")
     print(f"[done] levels: {dict(sorted(lv.items()))}")
     print(f"[done] site: {os.path.join(os.path.dirname(os.path.abspath(__file__)), 'site', 'index.html')}")
+    _, msgs = alert.end_of_run(ALERT_STATE, {"impact": True, "ttm": ttm_ok, "exhibition": ex_ok}, total=n)
+    alert.notify(msgs)
     return 0
 
 

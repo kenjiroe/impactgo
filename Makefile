@@ -2,5 +2,5 @@
 run:    ; ./run.sh
 serve:  ; ./serve.sh
 admin:  ; ./admin.sh
-test:   ; python3 tests/test_normalize.py && python3 tests/test_parse.py && python3 tests/test_ttm.py
+test:   ; python3 tests/test_normalize.py && python3 tests/test_parse.py && python3 tests/test_ttm.py && python3 tests/test_alert.py
 clean:  ; rm -rf site/ics site/index.html site/data.json

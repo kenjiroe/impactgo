@@ -29,6 +29,7 @@ bash ops/check_live.sh   # เทียบ build ที่ deploy กับเ�
 | ไฟล์ | หน้าที่ |
 |---|---|
 | `run.py` | orchestrator: ingest ทุกแหล่ง → holiday → score → assets → cards → build → print สรุป |
+| `app/alert.py` | ตรวจสุขภาพท้ายรัน: fail 2 รอบติด / งานลด >30% → แจ้ง (state ที่ `data/alert_state.json`) |
 | `app/fetch.py` | HTTP (urllib) + `fetch_curl` สำหรับโดเมนที่บล็อก UA + snapshot |
 | `app/parse_impact.py` | parse ปฏิทินอิมแพ็ค (Joomla Event Booking) |
 | `app/parse_ttm.py` | parse ThaiTicketMajor (การ์ด event) |
@@ -107,6 +108,8 @@ level: <0.1=0, <2.5=1, <4.4=2, <7.5=3, ≥7.5=4
 | `SITE_URL` | build_site | `https://kenjiroe.github.io/impactgo` |
 | `CHROME_BIN` | assets/share_card | macOS: path Chrome · CI: `/usr/bin/google-chrome` |
 | `CI` | assets/share_card | เปิด `--no-sandbox` |
+| `LINE_PUSH_TOKEN` | alert.notify | LINE Messaging API token — ไม่ตั้ง = แจ้งลง log อย่างเดียว |
+| `LINE_PUSH_TO` | alert.notify | user ID ผู้รับ push |
 
 ## 9. Deploy
 
@@ -144,4 +147,4 @@ make test
 
 ## 13. Roadmap ที่ยังไม่ทำ
 
-แหล่งที่ 4 (มอลล์/โรงแรม) · ข้อมูลฮอลล์จากผู้จัด · ค้นหาศิลปิน · landing page วัดช่องทาง · LINE OA broadcast · โดเมนของตัวเอง
+ดูฉบับรวม: [`docs/ROADMAP.md`](ROADMAP.md) — งาน dev ต่อช่องทาง + เงื่อนไข trigger (ทำก่อน launch / เฟส 2 หลัง Go 21 พ.ย. / ยังห้ามทำ)
