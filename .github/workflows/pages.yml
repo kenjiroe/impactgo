@@ -26,6 +26,9 @@ jobs:
           python3 tests/test_ttm.py
       - name: Build
         run: python3 run.py
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+          SITE_URL: https://kenjiroe.github.io/impactgo
       - uses: actions/upload-pages-artifact@v3
         with: { path: site }
   deploy:

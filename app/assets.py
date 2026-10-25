@@ -3,7 +3,8 @@ import json
 import os
 import subprocess
 
-CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+CHROME = os.environ.get("CHROME_BIN") or "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+CI = bool(os.environ.get("CI"))
 
 ICON_HTML = """<!doctype html><html><head><meta charset="utf-8"><style>
 *{margin:0;box-sizing:border-box}
@@ -20,7 +21,7 @@ def _icon(size, path):
     tmp = "/tmp/icon-%d.html" % size
     open(tmp, "w", encoding="utf-8").write(html)
     if os.path.exists(CHROME):
-        subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars",
+        subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars", *(["--no-sandbox"] if CI else []),
                         "--user-data-dir=/tmp/igicon", "--screenshot=" + path,
                         "--window-size=%d,%d" % (size, size), "--virtual-time-budget=1500",
                         "file://" + tmp], capture_output=True)

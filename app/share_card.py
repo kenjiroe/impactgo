@@ -7,7 +7,8 @@ import subprocess
 from .build_site import TH_D, TH_M, LEVEL_TXT
 from .db import ROOT
 
-CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+CHROME = os.environ.get("CHROME_BIN") or "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+CI = bool(os.environ.get("CI"))
 OUT = os.path.join(ROOT, "site", "share")
 
 CSS = """
@@ -99,7 +100,7 @@ def build_cards(con, today: dt.date, weeks: int = 8):
             f.write(_card_html(ws, rows[:4], maxlvl, len({e["id"] for e in evs}), ongoing, strip))
         png = os.path.join(OUT, "week-%02d.png" % ws.isocalendar()[1])
         if os.path.exists(CHROME):
-            subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars",
+            subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars", *(["--no-sandbox"] if CI else []),
                             "--user-data-dir=/tmp/igcard", "--screenshot=" + png,
                             "--window-size=1080,1080", "--virtual-time-budget=2500",
                             "file://" + path_html], capture_output=True)
