@@ -13,6 +13,7 @@ BASE = "https://www.impact.co.th/th/visitors/event-calendar"
 TTM_URL = "https://m.thaiticketmajor.com/tag/Impact%20Arena"
 SNAP = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "snapshots")
 ALERT_STATE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "alert_state.json")
+HORIZON_WEEKS = 12  # สัปดาห์ที่แสดง — score ต้องคำนวณให้ครบเท่ากัน ไม่งั้นวันท้าย ๆ ขึ้น "ว่าง" ปลอม
 
 
 def main():
@@ -150,7 +151,7 @@ def main():
         print(f"[warn] holidays failed: {exc}")
 
     tentative = db.purge_missing(con, src, seen, today)
-    score.recompute(con, today, 70)
+    score.recompute(con, today, HORIZON_WEEKS * 7)
     build_id = "%s-%d" % (dt.datetime.now().strftime("%Y%m%d-%H%M"), 0)
     try:
         assets.build(os.path.join(os.path.dirname(os.path.abspath(__file__)), "site"), build_id)
@@ -162,7 +163,7 @@ def main():
         print(f"[share] {len(cards)} cards")
     except Exception as exc:  # noqa: BLE001
         print(f"[warn] share cards failed: {exc}")
-    n = build_site.build(con, today, weeks=12)
+    n = build_site.build(con, today, weeks=HORIZON_WEEKS)
     con.commit()
 
     lv = dict(con.execute("SELECT level, count(*) c FROM day_score WHERE date>=? GROUP BY level", (today.isoformat(),)).fetchall())
