@@ -7,7 +7,7 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app import build_site, db, fetch, holidays, normalize as N, parse_exhibition, parse_impact, parse_ttm, score, share_card  # noqa: E402
+from app import assets, build_site, db, fetch, holidays, normalize as N, parse_exhibition, parse_impact, parse_ttm, score, share_card  # noqa: E402
 
 BASE = "https://www.impact.co.th/th/visitors/event-calendar"
 TTM_URL = "https://m.thaiticketmajor.com/tag/Impact%20Arena"
@@ -144,6 +144,12 @@ def main():
 
     tentative = db.purge_missing(con, src, seen, today)
     score.recompute(con, today, 70)
+    build_id = "%s-%d" % (dt.datetime.now().strftime("%Y%m%d-%H%M"), 0)
+    try:
+        assets.build(os.path.join(os.path.dirname(os.path.abspath(__file__)), "site"), build_id)
+        print("[assets] icons + manifest + sw")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[warn] assets failed: {exc}")
     try:
         cards = share_card.build_cards(con, today, weeks=8)
         print(f"[share] {len(cards)} cards")

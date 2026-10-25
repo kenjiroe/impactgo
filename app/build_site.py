@@ -54,7 +54,7 @@ display:flex;align-items:flex-end;justify-content:center;padding:2px}
 .sharerow{margin:2px 0 8px}
 .sharebtn{display:inline-block;margin-right:6px;cursor:pointer;font-family:inherit;font-size:12.5px;text-decoration:none;color:#141414;border:1px solid #141414;border-radius:99px;padding:6px 12px;background:#fff}
 .filters{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
-.filters button{font:inherit;font-size:12.5px;padding:6px 11px;border-radius:99px;border:1px solid var(--line);
+.filters button{font:inherit;font-size:12.5px;padding:8px 13px;min-height:38px;border-radius:99px;border:1px solid var(--line);
 background:#fff;color:#333;cursor:pointer}
 .filters button[aria-pressed="true"]{background:#141414;color:#fff;border-color:#141414}
 .week{margin:0 0 14px}
@@ -69,7 +69,7 @@ background:#fff;color:#333;cursor:pointer}
 .ev .ttl{font-size:14px;font-weight:600;margin:0 0 2px}
 .ev .meta{font-size:12px;color:var(--mut)}
 .ev .meta span+span:before{content:" · "}
-.ev a{color:#1a5fb4;text-decoration:none;font-size:12px}
+.ev a{color:#1a5fb4;text-decoration:none;font-size:12.5px;padding:8px 11px;border:1px solid #dcdcd4;border-radius:8px;display:inline-flex;align-items:center;min-height:38px;background:#fbfbf8}
 .ev .acts{margin-top:5px;display:flex;gap:12px;flex-wrap:wrap}
 .none{color:var(--mut);font-size:13px;padding:4px 0}
 .ahead{font-size:12px;color:var(--mut);margin:0 0 10px;padding:8px 10px;background:#fff;border:1px dashed var(--line);border-radius:8px}
@@ -209,6 +209,11 @@ def build(con, today: dt.date, weeks: int = 8):
     parts.append('<meta property="og:title" content="ปฏิทินงาน เมืองทองธานี">')
     parts.append('<meta property="og:description" content="งานล่วงหน้า 8 สัปดาห์ + ระดับความคึกคัก">')
     parts.append('<meta name="theme-color" content="#141414">')
+    parts.append('<link rel="manifest" href="manifest.json">')
+    parts.append('<link rel="apple-touch-icon" href="apple-touch-icon.png">')
+    parts.append('<meta name="apple-mobile-web-app-capable" content="yes">')
+    parts.append('<meta name="apple-mobile-web-app-status-bar-style" content="black">')
+    parts.append('<meta name="apple-mobile-web-app-title" content="ImpactGo">')
     build_id = "%s-%d" % (dt.datetime.now().strftime("%Y%m%d-%H%M"), len(evs))
     parts.append('<meta name="impactgo-build" content="%s">' % build_id)
     parts.append("<style>%s</style></head><body>" % CSS)
@@ -400,6 +405,7 @@ def build(con, today: dt.date, weeks: int = 8):
         '<li>วันหยุด/วันสำคัญ: ปฏิทิน Google สาธารณะ (วันหยุดราชการไทย)</li>'
         '<li>งานรอตรวจ (อาจซ้ำ/ข้อมูลไม่ครบ): %d รายการ</li>'
         '<li>การใช้งาน: นับ page view และคลิก .ics แบบไม่ใช้คุกกี้ ไม่ระบุตัวตน</li>'
+        '<li>ติดตั้งบนมือถือ: iOS → แชร์ → เพิ่มไปที่หน้าจอโฮม · Android → เมนู → ติดตั้งแอป</li>'
         '<li>เพิ่มทั้งปฏิทิน: <a href="events.ics" data-goatcounter-click="ics-all">ดาวน์โหลด .ics</a>'
         ' · <a href="webcal://%s/events.ics" data-goatcounter-click="webcal">สมัครรับ (webcal)</a></li>'
         '<li>ไฟล์ .ics ตั้งเตือนล่วงหน้า 1 วันไว้ให้ (iPhone/Outlook เตือนตาม; Google อาจไม่รับ alarm ตอน import)</li></ul></section>'
@@ -427,6 +433,7 @@ def build(con, today: dt.date, weeks: int = 8):
         "if(navigator.share){try{await navigator.share(data)}catch(e){}}"
         "else{try{await navigator.clipboard.writeText(url);sl.textContent='คัดลอกลิงก์แล้ว';}"
         "catch(e){window.prompt('คัดลอกลิงก์:',url)}}});}"
+        "if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}"
         "</script></body></html>"
     )
 
