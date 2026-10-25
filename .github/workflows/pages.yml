@@ -29,6 +29,7 @@ jobs:
         env:
           CHROME_BIN: /usr/bin/google-chrome
           SITE_URL: https://kenjiroe.github.io/impactgo
+          GOATCOUNTER_CODE: impactgo
       - uses: actions/upload-pages-artifact@v3
         with: { path: site }
   deploy:
