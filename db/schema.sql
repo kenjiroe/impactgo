@@ -99,6 +99,7 @@ CREATE TABLE IF NOT EXISTS event (
     organizer       TEXT,
     detail_url      TEXT,
     description     TEXT,                          -- สรุปจาก og/meta ของหน้างาน (ดึงโดย app/details.py)
+    description_full TEXT,                         -- เนื้อหาเต็มใน .eb-description ของหน้างาน (กด-ขยายในการ์ด)
     status          TEXT NOT NULL DEFAULT 'confirmed'
                     CHECK (status IN ('confirmed','tentative','cancelled','past')),
     confidence      TEXT NOT NULL DEFAULT 'medium' CHECK (confidence IN ('high','medium','low')),

@@ -78,6 +78,10 @@ background:#fff;color:#333;cursor:pointer}
 .ev .meta span+span:before{content:" · "}
 .ev .desc{font-size:12.5px;color:var(--mut);margin:4px 0 0;line-height:1.45;
 display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ev .evmore{margin-top:5px}
+.ev .evmore summary{cursor:pointer;font-size:12px;color:#1a5fb4;user-select:none}
+.ev .evbody{font-size:12.5px;color:#333;margin-top:5px;line-height:1.55;
+border-top:1px dashed var(--line);padding-top:5px}
 .ev a{color:#1a5fb4;text-decoration:none;font-size:12.5px;padding:8px 11px;border:1px solid #dcdcd4;border-radius:8px;display:inline-flex;align-items:center;min-height:38px;background:#fbfbf8}
 .ev .acts{margin-top:5px;display:flex;gap:12px;flex-wrap:wrap}
 .none{color:var(--mut);font-size:13px;padding:4px 0}
@@ -420,7 +424,13 @@ def build(con, today: dt.date, weeks: int = 8):
                 else:
                     date_txt = "%s–%s" % (e["start_date"].strftime("%d/%m"), e["end_date"].strftime("%d/%m"))
                 longb = ' <span class="big">งานยาว</span>' if (e["end_date"] - e["start_date"]).days >= 6 else ""
-                desc = '<p class="desc">%s</p>' % esc(e["description"][:280]) if e.get("description") else ""
+                short = e.get("description") or ""
+                full = e.get("description_full") or ""
+                desc = '<p class="desc">%s</p>' % esc(short[:280]) if short else ""
+                # กด-ขยายเฉพาะเมื่อเนื้อเต็มมีของมากกว่าสรุปชัดเจน
+                if full and len(full) > len(short) + 60:
+                    desc += ('<details class="evmore"><summary>อ่านรายละเอียดจากหน้างาน</summary>'
+                             '<div class="evbody">%s</div></details>' % esc(full))
                 acts = ('<div class="acts"><a href="%s" target="_blank" rel="noopener" '
                         'data-goatcounter-click="detail">หน้างาน</a></div>' % esc(e["detail_url"])) if e["detail_url"] else ""
                 parts.append(
