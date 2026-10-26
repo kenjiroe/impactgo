@@ -106,6 +106,36 @@ def extract_box(doc, target_class):
 CONTACT_MARKS = ("ติดต่อผู้จัดงาน", "ติดต่อผู้จัด")
 
 
+HEADERS = ("Date", "Time", "Location", "Price", "Category")
+
+
+def extract_times_hall(full):
+    """อ่านหัวข้อ Time/Location (แนวหัวข้อ-ค่า) — ค่าอาจคร่อมหลายบรรทัดจนถึงหัวข้อถัดไป
+    คืน (start_time, end_time, (hall_from, hall_to))"""
+    lines = full.split("\n")
+    st = en = None
+    hall = (None, None)
+    for i, ln in enumerate(lines):
+        t = ln.strip()
+        if t not in ("Time", "Location"):
+            continue
+        vals = []
+        for j in range(i + 1, len(lines)):
+            if lines[j].strip() in HEADERS:
+                break
+            vals.append(lines[j].strip())
+        joined = " ".join(vals)
+        if t == "Time":
+            m = re.search(r"(\d{1,2}[:.]\d{2})\s*[-–]\s*(\d{1,2}[:.]\d{2})", joined.replace(".", ":"))
+            if m:
+                st, en = m.group(1), m.group(2)
+        else:
+            m = re.search(r"(?:Hall|ฮอลล์)\s*(\d+)(?:\s*[-–]\s*(\d+))?", joined, re.I)
+            if m:
+                hall = (int(m.group(1)), int(m.group(2) or m.group(1)))
+    return st, en, hall
+
+
 def split_contact(full):
     """แยกบล็อก 'ติดต่อผู้จัด' ออกจากเนื้อหา — คืน (body, contact)
 
@@ -187,8 +217,9 @@ def _get(url):
 
 def refresh(con, cap=8):
     rows = con.execute(
-        """SELECT id, detail_url, description, description_full FROM event
-           WHERE (description IS NULL OR description_full IS NULL OR contact IS NULL OR image_url IS NULL)
+        """SELECT id, detail_url, description, description_full, start_time FROM event
+           WHERE (description IS NULL OR description_full IS NULL OR contact IS NULL OR image_url IS NULL
+                  OR (start_time IS NULL AND description_full IS NOT NULL))
              AND detail_url IS NOT NULL AND detail_url!=''
              AND status IN ('confirmed','tentative') AND end_date>=date('now')
            ORDER BY start_date LIMIT ?""",
@@ -202,6 +233,7 @@ def refresh(con, cap=8):
             full = extract_box(doc, "eb-description")
             _, contact = split_contact(full)
             image = extract_image(doc)
+            st_time, en_time, (hall_from, hall_to) = extract_times_hall(full)
         except Exception:  # noqa: BLE001 — พังวันนี้ลองรอบหน้า (คง NULL)
             continue
         # ถ้ากล่องเนื้อหาไม่ต่างจากสรุป (ยาวกว่าไม่ถึง 60 ตัวอักษร) ถือว่าไม่มีของขยาย
@@ -211,9 +243,14 @@ def refresh(con, cap=8):
         # คงสรุปเดิมไว้ถ้าหน้านี้ไม่มี meta ('' = ดึงแล้วไม่มีของ — ไม่ต้อง retry)
         new_desc = short if short else (r["description"] if r["description"] is not None else "")
         new_full = full if (full or r["description_full"] is None) else r["description_full"]
+        # เวลา: เจอ = เก็บ · หน้าไม่มีหัวข้อ Time = '' (ปิดสิทธิ์ดึงซ้ำ) · คงค่าเดิมถ้ามีอยู่แล้ว
+        new_st = r["start_time"] if r["start_time"] is not None else (st_time or "")
         con.execute(
-            "UPDATE event SET description=?, description_full=?, contact=?, image_url=? WHERE id=?",
-            (new_desc, new_full, contact, image, r["id"]),
+            """UPDATE event SET description=?, description_full=?, contact=?, image_url=?,
+               start_time=?, end_time=COALESCE(end_time,?),
+               hall_from=COALESCE(hall_from,?), hall_to=COALESCE(hall_to,?)
+               WHERE id=?""",
+            (new_desc, new_full, contact, image, new_st, en_time, hall_from, hall_to, r["id"]),
         )
         filled += 1
     con.commit()

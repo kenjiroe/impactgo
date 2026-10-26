@@ -39,6 +39,17 @@ def main():
     assert "<" not in full and "&amp;" not in full  # tag ถูกกลืนหมด, entity ถูกแปลง
     # ไม่มีกล่องเป้า = ว่าง
     assert details.extract_box("<html><body>hi</body></html>", "eb-description") == ""
+    # เวลาเปิด-ปิด + ฮอลล์ จากหัวข้อ Time/Location — ค่าคร่อมหลายบรรทัดได้
+    st, en, (hf, ht) = details.extract_times_hall(full)
+    assert (st, en) == ("10:00", "21:00"), (st, en)
+    assert (hf, ht) == (2, 3), (hf, ht)
+    # ค่าแยกสองบรรทัด (Location → ชื่อสถานที่ / Hall 9-10) ต้องอ่านถึงบรรทัดสอง
+    st2, en2, hall2 = details.extract_times_hall("Time\n10.00-19.00\nLocation\nศูนย์แสดงสินค้า อิมแพ็ค\nHall 9-10\nPrice\nฟรี")
+    assert (st2, en2) == ("10:00", "19:00") and hall2 == (9, 10), (st2, en2, hall2)
+    # หยุดที่หัวข้อถัดไป — ไม่ลาก Price/Category มาเป็นค่า
+    st3, en3, hall3 = details.extract_times_hall("Location\nอิมแพ็ค อารีน่า\nPrice\nฟรี\nCategory\nงานแสดงสินค้า")
+    assert hall3 == (None, None) and st3 is None
+    assert details.extract_times_hall("ไม่มีหัวข้อ") == (None, None, (None, None))
     # div ซ้อน: ปิด div นอกสุดก่อนจึงหยุด — ข้อความหลังกล่องต้องไม่ติดมา
     nested = '<div class="wrap"><div class="eb-description"><p>ในกล่อง</p></div><p>นอกกล่อง</p></div>'
     assert details.extract_box(nested, "eb-description") == "ในกล่อง"

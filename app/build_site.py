@@ -412,13 +412,14 @@ def build(con, today: dt.date, weeks: int = 8):
                 for e in ongoing:
                     ttl = ('<a href="%s" target="_blank" rel="noopener" data-goatcounter-click="detail">%s</a>'
                            % (esc(e["detail_url"]), esc(e["title"]))) if e["detail_url"] else esc(e["title"])
+                    tbit = ('<span>%s–%s</span>' % (esc(e["start_time"]), esc(e["end_time"]))) if e.get("start_time") else ""
                     parts.append(
                         '<article class="ev mini" data-tags="%s %s">'
                         '<p class="ttl">%s</p>'
-                        '<div class="meta"><span>%s</span><span>ถึง %s</span></div>'
+                        '<div class="meta"><span>%s</span><span>ถึง %s</span>%s</div>'
                         "</article>"
                         % (e["category"], "free" if e["is_free"] else "paid", ttl,
-                           esc(e["venue_name"]), e["end_date"].strftime("%d/%m"))
+                           esc(e["venue_name"]), e["end_date"].strftime("%d/%m"), tbit)
                     )
             for e in starts:
                 tags = [e["category"], "free" if e["is_free"] else "paid"]
@@ -447,12 +448,20 @@ def build(con, today: dt.date, weeks: int = 8):
                              '<div class="evbody">%s%s</div>%s</details>' % (img, esc(body), cblock))
                 ttl = ('<a href="%s" target="_blank" rel="noopener" data-goatcounter-click="detail">%s%s</a>'
                        % (esc(e["detail_url"]), esc(e["title"]), longb)) if e["detail_url"] else esc(e["title"]) + longb
+                meta_bits = [esc(e["venue_name"])]
+                if e.get("hall_from"):
+                    hall_txt = "ฮอลล์ %d" % e["hall_from"] + ("" if not e.get("hall_to") or e["hall_to"] == e["hall_from"] else "–%d" % e["hall_to"])
+                    meta_bits.append(esc(hall_txt))
+                meta_bits.append(date_txt)
+                if e.get("start_time"):
+                    meta_bits.append(esc(e["start_time"] + ("–" + e["end_time"] if e.get("end_time") else "")))
+                meta_bits.append(esc(price))
                 parts.append(
                     '<article class="ev" data-tags="%s">'
                     '<p class="ttl">%s</p>'
-                    '<div class="meta"><span>%s</span><span>%s</span><span>%s</span></div>'
+                    '<div class="meta">%s</div>'
                     "%s</article>"
-                    % (" ".join(tags), ttl, esc(e["venue_name"]), date_txt, esc(price), desc)
+                    % (" ".join(tags), ttl, "".join("<span>%s</span>" % b for b in meta_bits), desc)
                 )
             if not starts and not ongoing:
                 parts.append('<div class="none">— ไม่มีงาน —</div>')
