@@ -7,7 +7,7 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app import alert, assets, build_site, db, fetch, holidays, normalize as N, parse_exhibition, parse_impact, parse_ttm, score, share_card  # noqa: E402
+from app import alert, assets, build_site, db, details, fetch, holidays, normalize as N, parse_exhibition, parse_impact, parse_ttm, score, share_card  # noqa: E402
 
 BASE = "https://www.impact.co.th/th/visitors/event-calendar"
 TTM_URL = "https://m.thaiticketmajor.com/tag/Impact%20Arena"
@@ -149,6 +149,13 @@ def main():
             print(f"[holidays] refreshed {n_hol}")
     except Exception as exc:  # noqa: BLE001
         print(f"[warn] holidays failed: {exc}")
+
+    try:
+        n_desc = details.refresh(con, cap=8)
+        if n_desc:
+            print(f"[details] filled {n_desc}")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[warn] details failed: {exc}")
 
     tentative = db.purge_missing(con, src, seen, today)
     score.recompute(con, today, HORIZON_WEEKS * 7)

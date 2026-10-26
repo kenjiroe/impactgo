@@ -3,7 +3,6 @@ import datetime as dt
 import html
 import json
 import os
-from urllib.parse import quote
 
 from .db import ROOT
 
@@ -38,12 +37,6 @@ font-family:"Sarabun","Noto Sans Thai","Thonburi",system-ui,-apple-system,sans-s
 header{background:#141414;color:#fff;padding:22px 0 18px;margin-bottom:14px}
 header h1{margin:0;font-size:22px;letter-spacing:.2px}
 header p{margin:6px 0 0;color:#bdbdbd;font-size:12.5px}
-.now{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
-@media(max-width:560px){.now{grid-template-columns:1fr}}
-.ncard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
-.ncard .k{font-size:11.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px}
-.ncard .t{font-size:15px;font-weight:700;margin:4px 0 6px}
-.ncard .m{font-size:12.5px;color:var(--mut)}
 .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;color:#111;background:var(--lv0)}
 .pill.lv1{background:var(--lv1)}.pill.lv2{background:var(--lv2)}
 .pill.lv3{background:var(--lv3);color:#fff}.pill.lv4{background:var(--lv4);color:#fff}
@@ -83,6 +76,8 @@ background:#fff;color:#333;cursor:pointer}
 .ev .ttl{font-size:14px;font-weight:600;margin:0 0 2px}
 .ev .meta{font-size:12px;color:var(--mut)}
 .ev .meta span+span:before{content:" · "}
+.ev .desc{font-size:12.5px;color:var(--mut);margin:4px 0 0;line-height:1.45;
+display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .ev a{color:#1a5fb4;text-decoration:none;font-size:12.5px;padding:8px 11px;border:1px solid #dcdcd4;border-radius:8px;display:inline-flex;align-items:center;min-height:38px;background:#fbfbf8}
 .ev .acts{margin-top:5px;display:flex;gap:12px;flex-wrap:wrap}
 .none{color:var(--mut);font-size:13px;padding:4px 0}
@@ -173,7 +168,6 @@ def build_go_pages(goat=""):
 
 def build(con, today: dt.date, weeks: int = 8):
     goat = os.environ.get("GOATCOUNTER_CODE", "").strip()
-    site_url = os.environ.get("SITE_URL", "https://kenjiroe.github.io/impactgo").rstrip("/")
     os.makedirs(SITE, exist_ok=True)
     os.makedirs(os.path.join(SITE, "ics"), exist_ok=True)
     start = today
@@ -227,28 +221,14 @@ def build(con, today: dt.date, weeks: int = 8):
         extra = ' <span class="tag lw">หยุดยาว</span>' if ds in long_weekend else ""
         return '<span class="tag %s">%s · %s</span>%s' % (cls, label, esc(h["name"]), extra)
 
-    def card(d):
-        info = days.get(d.isoformat(), {})
-        lvl = int(info.get("level", 0) or 0)
-        items = by_day.get(d.isoformat(), [])
-        t = items[0]["title"] if items else "ไม่มีงานในปฏิทิน"
-        if len(items) > 1:
-            t += " +%d งาน" % (len(items) - 1)
-        return (
-            '<div class="ncard"><div class="k">%s %d %s</div>'
-            '<div class="t">%s</div>'
-            '<div class="m"><span class="pill lv%d">ระดับ %d · %s</span> %s</div></div>'
-            % (TH_D[d.weekday()], d.day, TH_M[d.month], esc(t), lvl, lvl, LEVEL_TXT[lvl], hbadge(d.isoformat()))
-        )
-
     parts = []
     parts.append('<!doctype html><html lang="th"><head><meta charset="utf-8">')
     parts.append('<meta name="viewport" content="width=device-width,initial-scale=1">')
     parts.append("<title>ปฏิทินงาน เมืองทองธานี — ImpactGo</title>")
-    parts.append('<meta name="description" content="รวมงานล่วงหน้า 8 สัปดาห์ในเมืองทองธานี '
-                 'พร้อมระดับความคึกคักและปุ่มเพิ่มลงปฏิทิน">')
+    parts.append('<meta name="description" content="รวมงานล่วงหน้า %d สัปดาห์ในเมืองทองธานี '
+                 'พร้อมระดับความคึกคักและรายละเอียดของแต่ละงาน">' % weeks)
     parts.append('<meta property="og:title" content="ปฏิทินงาน เมืองทองธานี">')
-    parts.append('<meta property="og:description" content="งานล่วงหน้า 8 สัปดาห์ + ระดับความคึกคัก">')
+    parts.append('<meta property="og:description" content="งานล่วงหน้า %d สัปดาห์ + ระดับความคึกคัก">' % weeks)
     parts.append('<meta name="theme-color" content="#141414">')
     parts.append('<link rel="manifest" href="manifest.json">')
     parts.append('<link rel="apple-touch-icon" href="apple-touch-icon.png">')
@@ -266,7 +246,6 @@ def build(con, today: dt.date, weeks: int = 8):
         % (weeks, dt.datetime.now().strftime("%d/%m/%Y %H:%M"))
     )
     parts.append('<main class="wrap">')
-    parts.append('<section class="now">%s%s</section>' % (card(today), card(today + dt.timedelta(days=1))))
 
     parts.append('<section class="heat" id="heat"><h2><span>ภาพรวม %d สัปดาห์</span>'
                  '<button type="button" id="heattoggle" class="heatbtn">ซ่อน</button></h2>' % weeks)
@@ -348,7 +327,6 @@ def build(con, today: dt.date, weeks: int = 8):
             '<a href="#w%d">%s</a>' % (w.isocalendar()[1],
                                        ("สัปดาห์นี้" if w <= start else "%d %s" % (w.day, TH_M[w.month]))) for w in idx))
 
-    week_i = 0
     cur = start
     while cur < end:
         ws = cur - dt.timedelta(days=cur.weekday())
@@ -371,10 +349,9 @@ def build(con, today: dt.date, weeks: int = 8):
             wsum = "%d วันมีงาน · สูงสุดระดับ %d · %s" % (len(ev_days), lvmax, short)
         else:
             wsum = "ว่างทั้งสัปดาห์"
-        week_i += 1
-        parts.append('<details class="week" id="w%d"%s><summary><span class="wtitle">สัปดาห์ที่ %d · %s</span>'
+        parts.append('<details class="week" id="w%d" open><summary><span class="wtitle">สัปดาห์ที่ %d · %s</span>'
                      '<span class="wsum">%s</span><span class="chev">▾</span></summary>'
-                     % (ws.isocalendar()[1], " open" if week_i == 1 else "", ws.isocalendar()[1], label, esc(wsum)))
+                     % (ws.isocalendar()[1], ws.isocalendar()[1], label, esc(wsum)))
         any_event = False
         for dd in week_days:
             items = by_day.get(dd.isoformat(), [])
@@ -412,19 +389,15 @@ def build(con, today: dt.date, weeks: int = 8):
             if ongoing:
                 parts.append('<div class="ongoing">กำลังจัดอยู่</div>')
                 for e in ongoing:
+                    acts = ('<div class="acts"><a href="%s" target="_blank" rel="noopener" '
+                            'data-goatcounter-click="detail">หน้างาน</a></div>' % esc(e["detail_url"])) if e["detail_url"] else ""
                     parts.append(
                         '<article class="ev mini" data-tags="%s %s">'
                         '<p class="ttl">%s</p>'
                         '<div class="meta"><span>%s</span><span>ถึง %s</span></div>'
-                        '<div class="acts"><a href="ics/%s.ics" data-goatcounter-click="ics">บันทึกลงปฏิทิน</a>'
-                        '<a href="%s" target="_blank" rel="noopener" data-goatcounter-click="gcal">Google Calendar</a>'
-                        '<a href="%s" target="_blank" rel="noopener" data-goatcounter-click="detail">หน้างาน</a></div></article>'
+                        "%s</article>"
                         % (e["category"], "free" if e["is_free"] else "paid", esc(e["title"]),
-                           esc(e["venue_name"]), e["end_date"].strftime("%d/%m"), e["id"],
-                           "https://calendar.google.com/calendar/render?action=TEMPLATE&text=%s&dates=%s/%s&location=%s" % (
-                               quote(e["title"]), e["start_date"].strftime("%Y%m%d"),
-                               (e["end_date"] + dt.timedelta(days=1)).strftime("%Y%m%d"), quote(e["venue_name"])),
-                           esc(e["detail_url"]))
+                           esc(e["venue_name"]), e["end_date"].strftime("%d/%m"), acts)
                     )
             for e in starts:
                 tags = [e["category"], "free" if e["is_free"] else "paid"]
@@ -438,21 +411,16 @@ def build(con, today: dt.date, weeks: int = 8):
                     date_txt = e["start_date"].strftime("%d/%m")
                 else:
                     date_txt = "%s–%s" % (e["start_date"].strftime("%d/%m"), e["end_date"].strftime("%d/%m"))
-                gday = (e["end_date"] + dt.timedelta(days=1)).strftime("%Y%m%d")
-                gurl = ("https://calendar.google.com/calendar/render?action=TEMPLATE&text=%s"
-                        "&dates=%s/%s&location=%s&details=%s") % (
-                    quote(e["title"]), e["start_date"].strftime("%Y%m%d"), gday,
-                    quote(e["venue_name"]), quote("ที่มา: ImpactGo · " + (e["detail_url"] or "")))
                 longb = ' <span class="big">งานยาว</span>' if (e["end_date"] - e["start_date"]).days >= 6 else ""
+                desc = '<p class="desc">%s</p>' % esc(e["description"][:280]) if e.get("description") else ""
+                acts = ('<div class="acts"><a href="%s" target="_blank" rel="noopener" '
+                        'data-goatcounter-click="detail">หน้างาน</a></div>' % esc(e["detail_url"])) if e["detail_url"] else ""
                 parts.append(
                     '<article class="ev" data-tags="%s">'
                     '<p class="ttl">%s%s</p>'
                     '<div class="meta"><span>%s</span><span>%s</span><span>%s</span></div>'
-                    '<div class="acts"><a href="ics/%s.ics" data-goatcounter-click="ics">บันทึกลงปฏิทิน</a>'
-                    '<a href="%s" target="_blank" rel="noopener" data-goatcounter-click="gcal">Google Calendar</a>'
-                    '<a href="%s" target="_blank" rel="noopener" data-goatcounter-click="detail">หน้างาน</a></div></article>'
-                    % (" ".join(tags), esc(e["title"]), longb, esc(e["venue_name"]), date_txt, esc(price),
-                       e["id"], gurl, esc(e["detail_url"]))
+                    "%s%s</article>"
+                    % (" ".join(tags), esc(e["title"]), longb, esc(e["venue_name"]), date_txt, esc(price), desc, acts)
                 )
             if not starts and not ongoing:
                 parts.append('<div class="none">— ไม่มีงาน —</div>')
@@ -476,29 +444,26 @@ def build(con, today: dt.date, weeks: int = 8):
         '<li>แหล่งข้อมูล: %s</li>'
         '<li>วันหยุด/วันสำคัญ: ปฏิทิน Google สาธารณะ (วันหยุดราชการไทย)</li>'
         '<li>งานรอตรวจ (อาจซ้ำ/ข้อมูลไม่ครบ): %d รายการ</li>'
-        '<li>การใช้งาน: นับ page view และคลิก .ics แบบไม่ใช้คุกกี้ ไม่ระบุตัวตน</li>'
-        '<li>ติดตั้งบนมือถือ: iOS → แชร์ → เพิ่มไปที่หน้าจอโฮม · Android → เมนู → ติดตั้งแอป</li>'
-        '<li>เพิ่มทั้งปฏิทิน: <a href="events.ics" data-goatcounter-click="ics-all">ดาวน์โหลด .ics</a>'
-        ' · <a href="webcal://%s/events.ics" data-goatcounter-click="webcal">สมัครรับ (webcal)</a></li>'
-        '<li>ไฟล์ .ics ตั้งเตือนล่วงหน้า 1 วันไว้ให้ (iPhone/Outlook เตือนตาม; Google อาจไม่รับ alarm ตอน import)</li></ul></section>'
-        % (dt.datetime.now().strftime("%d/%m/%Y %H:%M"), ", ".join(srcs), queued,
-           site_url.replace("https://", "").replace("http://", ""))
+        '<li>สรุปรายละเอียดงานดึงจากหน้าเว็บของผู้จัดโดยอัตโนมัติ</li>'
+        '<li>การใช้งาน: นับ page view และการกดลิงก์ แบบไม่ใช้คุกกี้ ไม่ระบุตัวตน</li>'
+        '<li>ติดตั้งบนมือถือ: iOS → แชร์ → เพิ่มไปที่หน้าจอโฮม · Android → เมนู → ติดตั้งแอป</li></ul></section>'
+        % (dt.datetime.now().strftime("%d/%m/%Y %H:%M"), ", ".join(srcs), queued)
     )
     parts.append("</main>")
     parts.append('<button class="totop" id="totop" type="button" aria-label="กลับด้านบน" hidden>↑</button>')
-    parts.append('''<div class="overlay" id="overlay" hidden></div>
+    parts.append(('''<div class="overlay" id="overlay" hidden></div>
 <div class="help" id="help" role="dialog" aria-modal="true" aria-labelledby="helptitle" hidden>
   <div class="helphead"><h2 id="helptitle">วิธีใช้งาน</h2>
     <button class="helpclose" id="helpclose" type="button" aria-label="ปิด">×</button></div>
   <div class="helpbody">
-    <p><b>ปฏิทินนี้คืออะไร</b> — รวมงานล่วงหน้า 8 สัปดาห์ในเมืองทองธานี จาก 3 แหล่ง (อิมแพ็ค, ไทยทิคเก็ตเมเจอร์, ไทยแลนด์เอ็กซิบิชั่น)</p>
+    <p><b>ปฏิทินนี้คืออะไร</b> — รวมงานล่วงหน้า %d สัปดาห์ในเมืองทองธานี จาก 3 แหล่ง (อิมแพ็ค, ไทยทิคเก็ตเมเจอร์, ไทยแลนด์เอ็กซิบิชั่น)</p>
     <p><b>ระดับ 0–4</b> — ประเมินความคึกคักจากขนาดอาคาร × ประเภทงาน × จำนวนงานซ้อน และวันหยุด <i>ไม่ใช่จำนวนคนจริง</i></p>
     <p><b>กดช่องวันที่</b> ในภาพรวม เพื่อกระโดดไปรายการของวันนั้น วันที่ไม่มีงานจะกดไม่ได้</p>
-    <p><b>บันทึกลงปฏิทิน</b> — ปุ่มในแต่ละงานจะดาวน์โหลด .ics (ตั้งเตือน 09:00 ของวันก่อน) หรือกด Google Calendar เพื่อเพิ่มทันที</p>
+    <p><b>รายละเอียดงาน</b> — สรุปสั้นดึงจากหน้างานของผู้จัด กด "หน้างาน" เพื่ออ่านเต็มและตรวจข้อมูลล่าสุดก่อนเดินทาง</p>
     <p><b>ติดตั้งบนมือถือ</b> — iOS: แชร์ → เพิ่มไปที่หน้าจอโฮม · Android: เมนู → ติดตั้งแอป</p>
     <p><b>ข้อจำกัด</b> — ข้อมูลจากแหล่งสาธารณะ งานอาจเลื่อน/ยกเลิกได้ โปรดตรวจสอบกับผู้จัดก่อนเดินทาง</p>
   </div>
-</div>''')
+</div>''') % weeks)
     parts.append('<footer>ImpactGo · ข้อมูลจาก impact.co.th · ไม่ใช่ข้อมูลทางการของอิมแพ็ค</footer>')
     parts.append(
         "<script>"

@@ -22,6 +22,9 @@ def connect(path: str = DB_PATH):
 def init_db(con):
     with open(SCHEMA, encoding="utf-8") as f:
         con.executescript(f.read())
+    cols = {r[1] for r in con.execute("PRAGMA table_info(event)")}
+    if "description" not in cols:
+        con.execute("ALTER TABLE event ADD COLUMN description TEXT")
     con.commit()
 
 

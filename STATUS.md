@@ -19,6 +19,7 @@
 - เทสต์ 5 ชุดผ่าน (normalize / impact / ttm / alert / exhibition) ด้วย fixture และ dict จำลอง API
 - Alert เมื่อ scraper พัง: แหล่งเดียว fail 2 รอบติด / งานรวมลด >30% → LINE push (`app/alert.py`, env `LINE_PUSH_TOKEN`+`LINE_PUSH_TO` ไม่ตั้ง = ลง log)
 - Landing วัดช่องทาง `/go/line`, `/go/fb`, `/go/dm` — นับ path ใน GoatCounter แล้วพาเข้าหน้าหลัก (launch-kit ใช้ลิงก์เหล่านี้แล้ว)
+- ปรับหน้าเว็บเน้นอ่าน (26 ต.ค.): ตัดการ์ดวันนี้/พรุ่งนี้, ทุกสัปดาห์เปิดค่าเริ่มต้น, ตัดปุ่ม ics/Google Calendar เหลือลิงก์ "หน้างาน", เพิ่มสรุปรายละเอียดงานที่ดึงจากหน้างานจริง (`app/details.py`) — เกณฑ์วัดเปลี่ยนจาก ics/gcal → detail + `/go/*` ตาม `ops/metrics.md`
 
 ## ค้างอยู่ (ติดสิทธิ์/บัญชี)
 1. **เริ่ม soft launch** ตาม `ops/launch-kit.md` (DM 10 ร้าน → LINE → Facebook)

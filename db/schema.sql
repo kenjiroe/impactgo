@@ -98,6 +98,7 @@ CREATE TABLE IF NOT EXISTS event (
     price_max       INTEGER,
     organizer       TEXT,
     detail_url      TEXT,
+    description     TEXT,                          -- สรุปจาก og/meta ของหน้างาน (ดึงโดย app/details.py)
     status          TEXT NOT NULL DEFAULT 'confirmed'
                     CHECK (status IN ('confirmed','tentative','cancelled','past')),
     confidence      TEXT NOT NULL DEFAULT 'medium' CHECK (confidence IN ('high','medium','low')),

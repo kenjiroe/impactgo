@@ -42,6 +42,7 @@ bash ops/check_live.sh   # เทียบ build ที่ deploy กับเ�
 | `app/assets.py` | manifest, ไอคอน, service worker |
 | `app/share_card.py` | การ์ด PNG รายสัปดาห์ (HTML→Chrome) |
 | `app/curate.py` | ตรรกะ merge/keep/cancel + audit log |
+| `app/details.py` | ดึงสรุปงานจากหน้างานจริง (og/meta description) ลง `event.description` |
 | `admin/server.py` | หน้า curator (stdlib HTTP) |
 | `db/schema.sql` | DDL + seed สถานที่/แหล่งข้อมูล |
 | `tests/` | fixture HTML + เทสต์ parser/normalize |
@@ -95,7 +96,7 @@ level: <0.1=0, <2.5=1, <4.4=2, <7.5=3, ≥7.5=4
 ## 7. หน้าเว็บ
 
 - ทุกอย่างอยู่ใน `app/build_site.py` (CSS + HTML + JS เป็น string)
-- `details.week` = พับสัปดาห์, `#w45` เปิดอัตโนมัติผ่าน JS
+- `details.week` = พับสัปดาห์, **เปิดทุกสัปดาห์ด้วย `open` (SSR)** — ตัดการ์ดวันนี้/พรุ่งนี้ด้านบนแล้ว (26 ต.ค. 2026)
 - heatmap: `.cell` → `#d-YYYY-MM-DD`, ซ่อนอัตโนมัติเมื่อ `innerWidth<640`
 - ปุ่ม `i` → `#help` dialog; ปุ่มแชร์ → `navigator.share`
 - แก้ CSS ระวัง: อย่าแทนบล็อกใหญ่ด้วย `str.replace` โดยไม่ตรวจว่าแมตช์ (เคยทำให้กฎหาย)
