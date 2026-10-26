@@ -23,7 +23,7 @@ def init_db(con):
     with open(SCHEMA, encoding="utf-8") as f:
         con.executescript(f.read())
     cols = {r[1] for r in con.execute("PRAGMA table_info(event)")}
-    for c in ("description", "description_full"):
+    for c in ("description", "description_full", "contact"):
         if c not in cols:
             con.execute("ALTER TABLE event ADD COLUMN %s TEXT" % c)
     con.commit()

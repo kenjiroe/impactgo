@@ -4,6 +4,7 @@ import html
 import json
 import os
 
+from . import details
 from .db import ROOT
 
 SITE = os.path.join(ROOT, "site")
@@ -81,7 +82,10 @@ display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hi
 .ev .evmore{margin-top:5px}
 .ev .evmore summary{cursor:pointer;font-size:12px;color:#1a5fb4;user-select:none}
 .ev .evbody{font-size:12.5px;color:#333;margin-top:5px;line-height:1.55;
-border-top:1px dashed var(--line);padding-top:5px}
+border-top:1px dashed var(--line);padding-top:5px;white-space:pre-line}
+.ev .evcontact{margin-top:7px;padding-top:5px;border-top:1px dashed var(--line)}
+.ev .evcontact b{display:block;font-size:11.5px;color:var(--mut);margin-bottom:2px}
+.ev .evcontact a{color:#1a5fb4;text-decoration:none}
 .ev a{color:#1a5fb4;text-decoration:none;font-size:12.5px;padding:8px 11px;border:1px solid #dcdcd4;border-radius:8px;display:inline-flex;align-items:center;min-height:38px;background:#fbfbf8}
 .ev .acts{margin-top:5px;display:flex;gap:12px;flex-wrap:wrap}
 .none{color:var(--mut);font-size:13px;padding:4px 0}
@@ -426,11 +430,14 @@ def build(con, today: dt.date, weeks: int = 8):
                 longb = ' <span class="big">งานยาว</span>' if (e["end_date"] - e["start_date"]).days >= 6 else ""
                 short = e.get("description") or ""
                 full = e.get("description_full") or ""
+                contact = e.get("contact") or ""
                 desc = '<p class="desc">%s</p>' % esc(short[:280]) if short else ""
-                # กด-ขยายเฉพาะเมื่อเนื้อเต็มมีของมากกว่าสรุปชัดเจน
-                if full and len(full) > len(short) + 60:
+                # กด-ขยาย: เนื้อเต็มต้องมีของมากกว่าสรุปชัดเจน หรือมีบล็อกติดต่อผู้จัด
+                if contact or (full and len(full.replace("\n", " ")) > len(short) + 60):
+                    body = full if full else short
+                    cblock = ('<div class="evcontact"><b>ติดต่อผู้จัดงาน</b>%s</div>' % details.contact_html(contact)) if contact else ""
                     desc += ('<details class="evmore"><summary>อ่านรายละเอียดจากหน้างาน</summary>'
-                             '<div class="evbody">%s</div></details>' % esc(full))
+                             '<div class="evbody">%s</div>%s</details>' % (esc(body), cblock))
                 acts = ('<div class="acts"><a href="%s" target="_blank" rel="noopener" '
                         'data-goatcounter-click="detail">หน้างาน</a></div>' % esc(e["detail_url"])) if e["detail_url"] else ""
                 parts.append(
