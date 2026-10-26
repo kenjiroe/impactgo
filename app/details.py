@@ -156,6 +156,24 @@ def drop_property_echo(full):
     return "\n".join(lines[i:]).strip()
 
 
+def strip_contact_tail(body, contact):
+    """ตัดบล็อกติดต่อที่ติดท้าย body ออก (ข้อมูลเก่าที่เก็บ description_full รวม contact ไว้)"""
+    if not contact:
+        return body
+    cut = -1
+    for m in CONTACT_MARKS:
+        j = body.rfind(m)
+        if j >= 0 and (cut < 0 or j < cut):
+            cut = j
+    if cut < 0:
+        return body
+    tail = body[cut:].replace("\n", " ")
+    first = contact.split("\n")[0].replace("\n", " ")[:20]
+    if first and first in tail:
+        return body[:cut].strip()
+    return body
+
+
 def split_contact(full):
     """แยกบล็อก 'ติดต่อผู้จัด' ออกจากเนื้อหา — คืน (body, contact)
 
@@ -251,9 +269,9 @@ def refresh(con, cap=8):
             doc = _get(r["detail_url"])
             short = extract_description(doc)
             full = extract_box(doc, "eb-description")
-            _, contact = split_contact(full)
+            body_only, contact = split_contact(full)
             image = extract_image(doc)
-            st_time, en_time, (hall_from, hall_to) = extract_times_hall(full)
+            st_time, en_time, (hall_from, hall_to) = extract_times_hall(body_only)
         except Exception:  # noqa: BLE001 — พังวันนี้ลองรอบหน้า (คง NULL)
             continue
         # ถ้ากล่องเนื้อหาไม่ต่างจากสรุป (ยาวกว่าไม่ถึง 60 ตัวอักษร) ถือว่าไม่มีของขยาย
@@ -262,7 +280,8 @@ def refresh(con, cap=8):
             full = ""
         # คงสรุปเดิมไว้ถ้าหน้านี้ไม่มี meta ('' = ดึงแล้วไม่มีของ — ไม่ต้อง retry)
         new_desc = short if short else (r["description"] if r["description"] is not None else "")
-        new_full = full if (full or r["description_full"] is None) else r["description_full"]
+        # description_full เก็บเฉพาะเนื้อหา (contact แยกคอลัมน์ กันเรนเดอร์ซ้ำ)
+        new_full = body_only if (body_only or r["description_full"] is None) else r["description_full"]
         # เวลา: เจอ = เก็บ · หน้าไม่มีหัวข้อ Time = '' (ปิดสิทธิ์ดึงซ้ำ) · คงค่าเดิมถ้ามีอยู่แล้ว
         new_st = r["start_time"] if r["start_time"] is not None else (st_time or "")
         con.execute(

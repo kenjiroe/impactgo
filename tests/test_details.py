@@ -57,6 +57,11 @@ def main():
     assert "Date" not in clean and "Price" not in clean and "Category" not in clean
     assert "ติดต่อผู้จัดงาน" in clean  # contact อยู่ท้ายกล่อง — ไม่โดนตัด
     assert details.drop_property_echo("เนื้อหาธรรมดา ไม่มีหัวข้อ") == "เนื้อหาธรรมดา ไม่มีหัวข้อ"
+    # ตัดบล็อกติดต่อที่ติดท้าย body (ข้อมูลเก่าเก็บ full รวม contact) — รวมเคส marker ติดชื่อบริษัท
+    tail_body, tail_contact = details.split_contact(full)
+    glued = tail_body + "\nติดต่อผู้จัดงาน" + tail_contact
+    assert details.strip_contact_tail(glued, tail_contact) == tail_body
+    assert details.strip_contact_tail("เนื้อหาไม่มีบล็อก", "CP Axtra Public Company Limited") == "เนื้อหาไม่มีบล็อก"
     # div ซ้อน: ปิด div นอกสุดก่อนจึงหยุด — ข้อความหลังกล่องต้องไม่ติดมา
     nested = '<div class="wrap"><div class="eb-description"><p>ในกล่อง</p></div><p>นอกกล่อง</p></div>'
     assert details.extract_box(nested, "eb-description") == "ในกล่อง"
