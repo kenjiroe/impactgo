@@ -136,6 +136,26 @@ def extract_times_hall(full):
     return st, en, hall
 
 
+def drop_property_echo(full):
+    """ตัดบล็อกซ้ำด้านหัวกล่องออก — ชื่องานซ้ำ + หัวข้อ Date/Time/Location/Hall/Price/Category
+    (การ์ดแสดงครบแล้วใน meta) เหลือเฉพาะเนื้อหาจริง ถ้าไม่พบรูปแบบ = คืนเดิม"""
+    lines = full.split("\n")
+    start = next((i for i, ln in enumerate(lines) if ln.strip() in HEADERS), None)
+    if start is None:
+        return full
+    i = start
+    while i < len(lines):
+        ln = lines[i].strip()
+        if ln in HEADERS:
+            i += 2  # หัวข้อ + บรรทัดค่า
+            continue
+        if ln.startswith(("Hall", "ฮอลล์")):
+            i += 1
+            continue
+        break
+    return "\n".join(lines[i:]).strip()
+
+
 def split_contact(full):
     """แยกบล็อก 'ติดต่อผู้จัด' ออกจากเนื้อหา — คืน (body, contact)
 

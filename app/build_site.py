@@ -440,7 +440,7 @@ def build(con, today: dt.date, weeks: int = 8):
                 desc = '<p class="desc">%s</p>' % esc(short[:280]) if short else ""
                 # กด-ขยาย: เนื้อเต็มต้องมีของมากกว่าสรุปชัดเจน หรือมีบล็อกติดต่อผู้จัด
                 if contact or (full and len(full.replace("\n", " ")) > len(short) + 60):
-                    body = full if full else short
+                    body = details.drop_property_echo(full) if full else short
                     cblock = ('<div class="evcontact"><b>ติดต่อผู้จัดงาน</b>%s</div>' % details.contact_html(contact)) if contact else ""
                     img = ('<img class="evimg" src="%s" alt="ภาพงาน" loading="lazy" referrerpolicy="no-referrer" '
                            'onerror="this.style.display=\'none\'">' % esc(e["image_url"])) if e.get("image_url") else ""

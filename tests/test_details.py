@@ -50,6 +50,13 @@ def main():
     st3, en3, hall3 = details.extract_times_hall("Location\nอิมแพ็ค อารีน่า\nPrice\nฟรี\nCategory\nงานแสดงสินค้า")
     assert hall3 == (None, None) and st3 is None
     assert details.extract_times_hall("ไม่มีหัวข้อ") == (None, None, (None, None))
+
+    # ตัดบล็อกซ้ำด้านหัวกล่อง (ชื่องาน + Date/Time/Location/Hall/Price/Category) เหลือเนื้อหาจริง
+    clean = details.drop_property_echo(full)
+    assert clean.startswith("บ้านและสวนแฟร์ LIVING FESTIVAL 2026 พื้นที่"), clean[:80]
+    assert "Date" not in clean and "Price" not in clean and "Category" not in clean
+    assert "ติดต่อผู้จัดงาน" in clean  # contact อยู่ท้ายกล่อง — ไม่โดนตัด
+    assert details.drop_property_echo("เนื้อหาธรรมดา ไม่มีหัวข้อ") == "เนื้อหาธรรมดา ไม่มีหัวข้อ"
     # div ซ้อน: ปิด div นอกสุดก่อนจึงหยุด — ข้อความหลังกล่องต้องไม่ติดมา
     nested = '<div class="wrap"><div class="eb-description"><p>ในกล่อง</p></div><p>นอกกล่อง</p></div>'
     assert details.extract_box(nested, "eb-description") == "ในกล่อง"
