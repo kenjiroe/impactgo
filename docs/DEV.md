@@ -20,7 +20,7 @@ cd /Users/ken/impactgo
 ./serve.sh               # http://localhost:8080
 ./admin.sh               # http://localhost:8081 (curator)
 make test                # เทสต์ 3 ชุด
-bash ops/check_live.sh   # เทียบ build ที่ deploy กับเครื่อง
+bash ops/check_live.sh   # ตรวจ live: ของเก่าค้าง/ฟีเจอร์หลักครบ
 ```
 ต้องมี Python 3.9+ (ใช้ `zoneinfo`) และ Chrome (สำหรับไอคอน/การ์ด)
 
