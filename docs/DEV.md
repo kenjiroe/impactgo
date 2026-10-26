@@ -42,7 +42,7 @@ bash ops/check_live.sh   # เทียบ build ที่ deploy กับเ�
 | `app/assets.py` | manifest, ไอคอน, service worker |
 | `app/share_card.py` | การ์ด PNG รายสัปดาห์ (HTML→Chrome) |
 | `app/curate.py` | ตรรกะ merge/keep/cancel + audit log |
-| `app/details.py` | ดึงเนื้อหาจากหน้างานจริงลง `event.description` (สรุป og/meta) + `description_full` (กล่อง `.eb-description`, DOM-walker, ย่อหน้าคั่น `\n`) + `contact` (บล็อกติดต่อผู้จัด, เรนเดอร์ tel/web/fb/mail) — 8 หน้า/รัน, '' = ดึงแล้วไม่มีของ |
+| `app/details.py` | ดึงเนื้อหาจากหน้างานจริงลง `event.description` (สรุป og/meta) + `description_full` (กล่อง `.eb-description`, DOM-walker, ย่อหน้าคั่น `\n`) + `contact` (บล็อกติดต่อผู้จัด, เรนเดอร์ tel/web/fb/mail) + `image_url` (og:image — **hotlink** ไม่ก๊อปมาเก็บ) — 8 หน้า/รัน, '' = ดึงแล้วไม่มีของ |
 | `admin/server.py` | หน้า curator (stdlib HTTP) |
 | `db/schema.sql` | DDL + seed สถานที่/แหล่งข้อมูล |
 | `tests/` | fixture HTML + เทสต์ parser/normalize |

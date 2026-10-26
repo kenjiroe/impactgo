@@ -101,6 +101,7 @@ CREATE TABLE IF NOT EXISTS event (
     description     TEXT,                          -- สรุปจาก og/meta ของหน้างาน (ดึงโดย app/details.py)
     description_full TEXT,                         -- เนื้อหาเต็มใน .eb-description ของหน้างาน (กด-ขยายในการ์ด)
     contact         TEXT,                          -- บล็อก "ติดต่อผู้จัด" (แยกจาก description_full, เรนเดอร์เป็นลิงก์)
+    image_url       TEXT,                          -- og:image ของหน้างาน (hotlink — ไม่ก๊อปมาเก็บ)
     status          TEXT NOT NULL DEFAULT 'confirmed'
                     CHECK (status IN ('confirmed','tentative','cancelled','past')),
     confidence      TEXT NOT NULL DEFAULT 'medium' CHECK (confidence IN ('high','medium','low')),

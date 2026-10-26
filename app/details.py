@@ -19,6 +19,17 @@ OG_RE = re.compile(r'<meta[^>]+property=["\']og:description["\'][^>]+content=["\
 OG_RE_REV = re.compile(r'<meta[^>]+content=["\']([^"\']*)["\'][^>]+property=["\']og:description["\']', re.I)
 DESC_RE = re.compile(r'<meta[^>]+name=["\']description["\'][^>]+content=["\']([^"\']*)["\']', re.I)
 DESC_RE_REV = re.compile(r'<meta[^>]+content=["\']([^"\']*)["\'][^>]+name=["\']description["\']', re.I)
+IMG_RE = re.compile(r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']', re.I)
+IMG_RE_REV = re.compile(r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']', re.I)
+
+
+def extract_image(doc):
+    """og:image ตัวแรก — ใช้ hotlink ไม่ก๊อปมาเก็บ"""
+    for pat in (IMG_RE, IMG_RE_REV):
+        m = pat.search(doc)
+        if m and m.group(1).strip():
+            return m.group(1).strip()[:500]
+    return ""
 
 MAX_FULL = 2000
 CONTACT_MARK = "ติดต่อผู้จัด"
@@ -176,11 +187,10 @@ def _get(url):
 
 def refresh(con, cap=8):
     rows = con.execute(
-        """SELECT id, detail_url, description FROM event
-           WHERE (description IS NULL OR description_full IS NULL OR contact IS NULL)
+        """SELECT id, detail_url, description, description_full FROM event
+           WHERE (description IS NULL OR description_full IS NULL OR contact IS NULL OR image_url IS NULL)
              AND detail_url IS NOT NULL AND detail_url!=''
              AND status IN ('confirmed','tentative') AND end_date>=date('now')
-             AND (description_full IS NULL OR description_full!='')
            ORDER BY start_date LIMIT ?""",
         (cap,),
     ).fetchall()
@@ -191,6 +201,7 @@ def refresh(con, cap=8):
             short = extract_description(doc)
             full = extract_box(doc, "eb-description")
             _, contact = split_contact(full)
+            image = extract_image(doc)
         except Exception:  # noqa: BLE001 — พังวันนี้ลองรอบหน้า (คง NULL)
             continue
         # ถ้ากล่องเนื้อหาไม่ต่างจากสรุป (ยาวกว่าไม่ถึง 60 ตัวอักษร) ถือว่าไม่มีของขยาย
@@ -199,9 +210,10 @@ def refresh(con, cap=8):
             full = ""
         # คงสรุปเดิมไว้ถ้าหน้านี้ไม่มี meta ('' = ดึงแล้วไม่มีของ — ไม่ต้อง retry)
         new_desc = short if short else (r["description"] if r["description"] is not None else "")
+        new_full = full if (full or r["description_full"] is None) else r["description_full"]
         con.execute(
-            "UPDATE event SET description=?, description_full=?, contact=? WHERE id=?",
-            (new_desc, full, contact, r["id"]),
+            "UPDATE event SET description=?, description_full=?, contact=?, image_url=? WHERE id=?",
+            (new_desc, new_full, contact, image, r["id"]),
         )
         filled += 1
     con.commit()

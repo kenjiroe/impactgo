@@ -20,6 +20,10 @@ def main():
     assert d2 == "a b", d2
     # ไม่มี meta = สตริงว่าง (ผู้เรียกเก็บ '' = ไม่ต้อง retry)
     assert details.extract_description("<html><body>x</body></html>") == ""
+    # og:image (hotlink รูปงาน)
+    assert details.extract_image(doc) == "https://www.impact.co.th/images/event/baanlaesuan-2026-banner.jpg"
+    assert details.extract_image("<html><body>x</body></html>") == ""
+    assert details.extract_image('<meta content="https://x.co/a.png" property="og:image">') == "https://x.co/a.png"
 
     # กล่องเนื้อหาเต็ม: จับข้อความใน .eb-description ตามความลึก DOM — ย่อหน้าคั่น \n
     full = details.extract_box(doc, "eb-description")

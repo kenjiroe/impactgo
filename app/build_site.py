@@ -83,7 +83,10 @@ display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hi
 .ev .evmore summary{cursor:pointer;font-size:12px;color:#1a5fb4;user-select:none}
 .ev .evbody{font-size:12.5px;color:#333;margin-top:5px;line-height:1.55;
 border-top:1px dashed var(--line);padding-top:5px;white-space:pre-line}
-.ev .evcontact{margin-top:7px;padding-top:5px;border-top:1px dashed var(--line)}
+.ev .evbody img.evimg{float:right;width:140px;max-width:42%;height:auto;
+margin:0 0 6px 8px;border-radius:6px;border:1px solid var(--line)}
+.ev .evcontact{margin-top:7px;padding-top:5px;border-top:1px dashed var(--line);clear:both}
+@media(max-width:560px){.ev .evbody img.evimg{width:104px}}
 .ev .evcontact b{display:block;font-size:11.5px;color:var(--mut);margin-bottom:2px}
 .ev .evcontact a{color:#1a5fb4;text-decoration:none}
 .ev a{color:#1a5fb4;text-decoration:none;font-size:12.5px;padding:8px 11px;border:1px solid #dcdcd4;border-radius:8px;display:inline-flex;align-items:center;min-height:38px;background:#fbfbf8}
@@ -436,8 +439,10 @@ def build(con, today: dt.date, weeks: int = 8):
                 if contact or (full and len(full.replace("\n", " ")) > len(short) + 60):
                     body = full if full else short
                     cblock = ('<div class="evcontact"><b>ติดต่อผู้จัดงาน</b>%s</div>' % details.contact_html(contact)) if contact else ""
+                    img = ('<img class="evimg" src="%s" alt="ภาพงาน" loading="lazy" referrerpolicy="no-referrer" '
+                           'onerror="this.style.display=\'none\'">' % esc(e["image_url"])) if e.get("image_url") else ""
                     desc += ('<details class="evmore"><summary>อ่านรายละเอียดจากหน้างาน</summary>'
-                             '<div class="evbody">%s</div>%s</details>' % (esc(body), cblock))
+                             '<div class="evbody">%s%s</div>%s</details>' % (img, esc(body), cblock))
                 acts = ('<div class="acts"><a href="%s" target="_blank" rel="noopener" '
                         'data-goatcounter-click="detail">หน้างาน</a></div>' % esc(e["detail_url"])) if e["detail_url"] else ""
                 parts.append(
