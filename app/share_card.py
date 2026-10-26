@@ -9,12 +9,20 @@ from .db import ROOT
 
 CHROME = os.environ.get("CHROME_BIN") or "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 CI = bool(os.environ.get("CI"))
+SITE_URL = os.environ.get("SITE_URL", "https://kenjiroe.github.io/impactgo").rstrip("/")
 OUT = os.path.join(ROOT, "site", "share")
+FONT_DIR = os.path.join(ROOT, "assets", "fonts")
+
+# ฟอนต์แถมใน repo (Sarabun, SIL OFL) — เรนเดอร์ไทยเหมือนกันทุกเครื่อง/CI ไม่ต้องพึ่งฟอนต์ในเครื่อง
+FONTFACE = """
+@font-face{font-family:"SarabunLocal";src:url("file://%(d)s/Sarabun-Regular.ttf");font-weight:400}
+@font-face{font-family:"SarabunLocal";src:url("file://%(d)s/Sarabun-Bold.ttf");font-weight:700}
+""" % {"d": FONT_DIR}
 
 CSS = """
 *{box-sizing:border-box;margin:0;padding:0}
 body{width:1080px;height:1080px;background:#f6f6f3;color:#141414;
-font-family:"Sarabun","Noto Sans Thai","Thonburi",sans-serif;padding:56px 64px;display:flex;flex-direction:column}
+font-family:"SarabunLocal","Sarabun","Noto Sans Thai","Thonburi",sans-serif;padding:56px 64px;display:flex;flex-direction:column}
 .top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #141414;padding-bottom:18px}
 h1{font-size:44px;letter-spacing:.3px}
 .sub{font-size:24px;color:#666;margin-top:6px}
@@ -53,12 +61,12 @@ def _card_html(week_start, rows, level, total, ongoing, strip):
     if ongoing:
         ong = '<div class="ongoing">กำลังจัดในสัปดาห์นี้: %s</div>' % html.escape(
             ", ".join("%s (ถึง %s)" % (e["title"], e["end_date"][8:10] + "/" + e["end_date"][5:7]) for e in ongoing[:2]))
-    return """<!doctype html><html lang="th"><head><meta charset="utf-8"><style>%s</style></head><body>
+    return """<!doctype html><html lang="th"><head><meta charset="utf-8"><style>%s%s</style></head><body>
 <div class="top"><div><h1>ปฏิทินงาน เมืองทองธานี</h1><div class="sub">สัปดาห์ที่ %d · %s</div></div>
 <div style="text-align:right"><div class="big">%d<span> งาน</span></div><div class="sub">ระดับสูงสุด %d · %s</div></div></div>
 %s<div class="strip7">%s</div><div class="list">%s</div>
-<footer><span>impactgo.netlify.app</span><span>ข้อมูลจากแหล่งสาธารณะ · ไม่ใช่ข้อมูลทางการ</span></footer>
-</body></html>""" % (CSS, week_start.isocalendar()[1], rng, total, level, LEVEL_TXT[level], ong, strip_html, "".join(days))
+<footer><span>%s</span><span>ข้อมูลจากแหล่งสาธารณะ · ไม่ใช่ข้อมูลทางการ</span></footer>
+</body></html>""" % (FONTFACE, CSS, week_start.isocalendar()[1], rng, total, level, LEVEL_TXT[level], ong, strip_html, "".join(days), SITE_URL.replace("https://", ""))
 
 
 def build_cards(con, today: dt.date, weeks: int = 8):
@@ -101,6 +109,7 @@ def build_cards(con, today: dt.date, weeks: int = 8):
         png = os.path.join(OUT, "week-%02d.png" % ws.isocalendar()[1])
         if os.path.exists(CHROME):
             subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars", *(["--no-sandbox"] if CI else []),
+                            "--allow-file-access-from-files",
                             "--user-data-dir=/tmp/igcard", "--screenshot=" + png,
                             "--window-size=1080,1080", "--virtual-time-budget=2500",
                             "file://" + path_html], capture_output=True)
