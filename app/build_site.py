@@ -81,8 +81,10 @@ display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hi
 .ev a{color:#1a5fb4;text-decoration:none;font-size:12.5px;padding:8px 11px;border:1px solid #dcdcd4;border-radius:8px;display:inline-flex;align-items:center;min-height:38px;background:#fbfbf8}
 .ev .acts{margin-top:5px;display:flex;gap:12px;flex-wrap:wrap}
 .none{color:var(--mut);font-size:13px;padding:4px 0}
-.ahead{font-size:12px;color:var(--mut);margin:0 0 10px;padding:8px 10px;background:#fff;border:1px dashed var(--line);border-radius:8px}
-.ahead b{color:#333}
+.ahead{font-size:12px;color:var(--mut);margin:0 0 10px;padding:8px 10px;background:#fff;border:1px dashed var(--line);border-radius:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ahead b{color:#333;margin-right:2px}
+.ahead .chip{display:inline-flex;align-items:center;padding:4px 10px;border:1px solid var(--line);border-radius:99px;background:var(--card);color:var(--ink);font-size:12px;text-decoration:none;line-height:1.4}
+a.chip:hover{border-color:#a9a99c;background:#f2f2ec}
 .ongoing{font-size:10.5px;color:var(--mut);margin:2px 0 3px;letter-spacing:.3px}
 .ev.mini{background:#fbfbf8;border-style:dashed;padding:7px 10px}
 .ev.mini .ttl{font-size:12.5px;font-weight:600}
@@ -300,18 +302,24 @@ def build(con, today: dt.date, weeks: int = 8):
     )
 
     ahead = con.execute(
-        """SELECT title, start_date, end_date FROM event
-           WHERE status!='cancelled' AND start_date>=? ORDER BY start_date LIMIT 3""",
+        """SELECT title, start_date, end_date, category, detail_url FROM event
+           WHERE status!='cancelled' AND start_date>=? ORDER BY start_date LIMIT 6""",
         (end.isoformat(),),
     ).fetchall()
     if ahead:
-        items = []
+        chips = []
         for a in ahead:
             s = dt.date.fromisoformat(a["start_date"])
             e2 = dt.date.fromisoformat(a["end_date"])
             rng = s.strftime("%d/%m/%y") if s == e2 else "%s–%s" % (s.strftime("%d/%m/%y"), e2.strftime("%d/%m/%y"))
-            items.append("%s <span>(%s)</span>" % (esc(a["title"]), rng))
-        parts.append('<div class="ahead"><b>ไกลกว่า %d สัปดาห์:</b> %s</div>' % (weeks, " · ".join(items)))
+            t = a["title"] if len(a["title"]) <= 46 else a["title"][:45] + "…"
+            label = "%s · %s · %s" % (CAT_TXT.get(a["category"], "อื่น ๆ"), t, rng)
+            chip = '<span class="chip">%s</span>' % esc(label)
+            if a["detail_url"]:
+                chip = '<a class="chip" href="%s" target="_blank" rel="noopener" data-goatcounter-click="detail">%s</a>' % (
+                    esc(a["detail_url"]), esc(label))
+            chips.append(chip)
+        parts.append('<div class="ahead"><b>ไกลกว่า %d สัปดาห์:</b>%s</div>' % (weeks, "".join(chips)))
 
     idx = []
     _c = start
