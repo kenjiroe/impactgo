@@ -40,7 +40,7 @@ bash ops/check_live.sh   # เทียบ build ที่ deploy กับเ�
 | `app/holidays.py` | วันหยุดจาก Google ICS + cache 30 วัน |
 | `app/build_site.py` | สร้าง `site/index.html` + `.ics` + `data.json` + `go/<ช่อง>/` landing วัดช่องทาง |
 | `app/assets.py` | manifest, ไอคอน, service worker |
-| `app/share_card.py` | การ์ด PNG รายสัปดาห์ (HTML→Chrome) |
+| `app/share_card.py` | การ์ด PNG รายสัปดาห์ (HTML→Chrome) — ฟอนต์ไทยแถมใน `assets/fonts` (Sarabun, SIL OFL) เพราะ runner/เครื่องอาจไม่มีฟอนต์ไทย การ์ดจะเป็นกล่องเปล่า |
 | `app/curate.py` | ตรรกะ merge/keep/cancel + audit log |
 | `app/details.py` | ดึงเนื้อหาจากหน้างานจริงลง `event.description` (สรุป og/meta) + `description_full` (กล่อง `.eb-description`, DOM-walker, ย่อหน้าคั่น `\n`) + `contact` (บล็อกติดต่อผู้จัด, เรนเดอร์ tel/web/fb/mail) + `image_url` (og:image — **hotlink** ไม่ก๊อปมาเก็บ) — 8 หน้า/รัน, '' = ดึงแล้วไม่มีของ |
 | `admin/server.py` | หน้า curator (stdlib HTTP) |
