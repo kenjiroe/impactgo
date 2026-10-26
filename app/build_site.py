@@ -88,9 +88,11 @@ margin:0 0 6px 8px;border-radius:6px;border:1px solid var(--line)}
 .ev .evcontact{margin-top:7px;padding-top:5px;border-top:1px dashed var(--line);clear:both}
 @media(max-width:560px){.ev .evbody img.evimg{width:104px}}
 .ev .evcontact b{display:block;font-size:11.5px;color:var(--mut);margin-bottom:2px}
+.ev .evcontact{font-size:12.5px}
 .ev .evcontact a{color:#1a5fb4;text-decoration:none}
-.ev a{color:#1a5fb4;text-decoration:none;font-size:12.5px;padding:8px 11px;border:1px solid #dcdcd4;border-radius:8px;display:inline-flex;align-items:center;min-height:38px;background:#fbfbf8}
-.ev .acts{margin-top:5px;display:flex;gap:12px;flex-wrap:wrap}
+.ev .evcontact a:hover{text-decoration:underline}
+.ev .ttl a{color:inherit;text-decoration:none}
+.ev .ttl a:hover{text-decoration:underline;text-underline-offset:2px}
 .none{color:var(--mut);font-size:13px;padding:4px 0}
 .ahead{font-size:12px;color:var(--mut);margin:0 0 10px;padding:8px 10px;background:#fff;border:1px dashed var(--line);border-radius:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .ahead b{color:#333;margin-right:2px}
@@ -408,15 +410,15 @@ def build(con, today: dt.date, weeks: int = 8):
             if ongoing:
                 parts.append('<div class="ongoing">กำลังจัดอยู่</div>')
                 for e in ongoing:
-                    acts = ('<div class="acts"><a href="%s" target="_blank" rel="noopener" '
-                            'data-goatcounter-click="detail">หน้างาน</a></div>' % esc(e["detail_url"])) if e["detail_url"] else ""
+                    ttl = ('<a href="%s" target="_blank" rel="noopener" data-goatcounter-click="detail">%s</a>'
+                           % (esc(e["detail_url"]), esc(e["title"]))) if e["detail_url"] else esc(e["title"])
                     parts.append(
                         '<article class="ev mini" data-tags="%s %s">'
                         '<p class="ttl">%s</p>'
                         '<div class="meta"><span>%s</span><span>ถึง %s</span></div>'
-                        "%s</article>"
-                        % (e["category"], "free" if e["is_free"] else "paid", esc(e["title"]),
-                           esc(e["venue_name"]), e["end_date"].strftime("%d/%m"), acts)
+                        "</article>"
+                        % (e["category"], "free" if e["is_free"] else "paid", ttl,
+                           esc(e["venue_name"]), e["end_date"].strftime("%d/%m"))
                     )
             for e in starts:
                 tags = [e["category"], "free" if e["is_free"] else "paid"]
@@ -443,14 +445,14 @@ def build(con, today: dt.date, weeks: int = 8):
                            'onerror="this.style.display=\'none\'">' % esc(e["image_url"])) if e.get("image_url") else ""
                     desc += ('<details class="evmore"><summary>อ่านรายละเอียดจากหน้างาน</summary>'
                              '<div class="evbody">%s%s</div>%s</details>' % (img, esc(body), cblock))
-                acts = ('<div class="acts"><a href="%s" target="_blank" rel="noopener" '
-                        'data-goatcounter-click="detail">หน้างาน</a></div>' % esc(e["detail_url"])) if e["detail_url"] else ""
+                ttl = ('<a href="%s" target="_blank" rel="noopener" data-goatcounter-click="detail">%s%s</a>'
+                       % (esc(e["detail_url"]), esc(e["title"]), longb)) if e["detail_url"] else esc(e["title"]) + longb
                 parts.append(
                     '<article class="ev" data-tags="%s">'
-                    '<p class="ttl">%s%s</p>'
+                    '<p class="ttl">%s</p>'
                     '<div class="meta"><span>%s</span><span>%s</span><span>%s</span></div>'
-                    "%s%s</article>"
-                    % (" ".join(tags), esc(e["title"]), longb, esc(e["venue_name"]), date_txt, esc(price), desc, acts)
+                    "%s</article>"
+                    % (" ".join(tags), ttl, esc(e["venue_name"]), date_txt, esc(price), desc)
                 )
             if not starts and not ongoing:
                 parts.append('<div class="none">— ไม่มีงาน —</div>')
