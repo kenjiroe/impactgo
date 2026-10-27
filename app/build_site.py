@@ -120,9 +120,10 @@ details.week>summary::-webkit-details-marker{display:none}
 .chev{margin-left:auto;font-size:12px;color:#999;transition:transform .15s}
 details[open]>summary .chev{transform:rotate(180deg)}
 .totop{position:fixed;right:16px;bottom:18px;width:44px;height:44px;border-radius:50%;border:1px solid #141414;background:#141414;color:#fff;font-size:18px;cursor:pointer;z-index:30;box-shadow:0 6px 18px rgba(0,0,0,.2)}
-.about{margin:22px 0 10px;padding:14px;background:#fff;border:1px solid var(--line);border-radius:10px;font-size:12.5px;color:#444}
-.about h3{margin:0 0 6px;font-size:13.5px}
-.about ul{margin:6px 0 0 18px;padding:0}
+.helpbody .aboutgrp{margin:10px 0 4px;padding-top:8px;border-top:1px solid #e6e6df}
+.helpbody .aboutgrp>b{display:block;font-size:11.5px;color:var(--mut);letter-spacing:.4px;margin-bottom:4px}
+.helpbody ul{margin:0 0 8px;padding-left:18px;font-size:12.5px;color:#333}
+.helpbody li{margin-bottom:3px}
 footer{padding:18px 0 40px;color:var(--mut);font-size:11.5px;text-align:center}
 """
 
@@ -478,21 +479,6 @@ def build(con, today: dt.date, weeks: int = 8):
     srcs = [r["name"] for r in con.execute(
         """SELECT DISTINCT s.name FROM event_source es JOIN source s ON s.id=es.source_id
            ORDER BY s.trust_rank""")]
-    parts.append(
-        '<section class="about"><h3>เกี่ยวกับข้อมูล</h3>'
-        '<p>รวบรวมจากปฏิทินกิจกรรมของอิมแพ็ค (สาธารณะ) · เป็นข้อมูลเพื่อการวางแผน ไม่ใช่ข้อมูลทางการ</p>'
-        '<ul><li>อัปเดตล่าสุด: %s</li>'
-        '<li>ระดับ 0–4 ประเมินจากขนาดอาคาร × ประเภทงาน × จำนวนงานซ้อน (ไม่ใช่จำนวนคนจริง)</li>'
-        '<li>วันที่ไม่แสดงในรายการ = ไม่มีงานในปฏิทิน</li>'
-        '<li>งานอาจเลื่อน/ยกเลิกได้ — ตรวจสอบกับผู้จัดก่อนเดินทาง</li>'
-        '<li>แหล่งข้อมูล: %s</li>'
-        '<li>วันหยุด/วันสำคัญ: ปฏิทิน Google สาธารณะ (วันหยุดราชการไทย)</li>'
-        '<li>งานรอตรวจ (อาจซ้ำ/ข้อมูลไม่ครบ): %d รายการ</li>'
-        '<li>สรุปรายละเอียดงานดึงจากหน้าเว็บของผู้จัดโดยอัตโนมัติ</li>'
-        '<li>การใช้งาน: นับ page view และการกดลิงก์ แบบไม่ใช้คุกกี้ ไม่ระบุตัวตน</li>'
-        '<li>ติดตั้งบนมือถือ: iOS → แชร์ → เพิ่มไปที่หน้าจอโฮม · Android → เมนู → ติดตั้งแอป</li></ul></section>'
-        % (dt.datetime.now().strftime("%d/%m/%Y %H:%M"), ", ".join(srcs), queued)
-    )
     parts.append("</main>")
     parts.append('<button class="totop" id="totop" type="button" aria-label="กลับด้านบน" hidden>↑</button>')
     parts.append(('''<div class="overlay" id="overlay" hidden></div>
@@ -503,11 +489,22 @@ def build(con, today: dt.date, weeks: int = 8):
     <p><b>ปฏิทินนี้คืออะไร</b> — รวมงานล่วงหน้า %d สัปดาห์ในเมืองทองธานี จาก 3 แหล่ง (อิมแพ็ค, ไทยทิคเก็ตเมเจอร์, ไทยแลนด์เอ็กซิบิชั่น)</p>
     <p><b>ระดับ 0–4</b> — ประเมินความคึกคักจากขนาดอาคาร × ประเภทงาน × จำนวนงานซ้อน และวันหยุด <i>ไม่ใช่จำนวนคนจริง</i></p>
     <p><b>กดช่องวันที่</b> ในภาพรวม เพื่อกระโดดไปรายการของวันนั้น วันที่ไม่มีงานจะกดไม่ได้</p>
-    <p><b>รายละเอียดงาน</b> — สรุปสั้นดึงจากหน้างานของผู้จัด กด "หน้างาน" เพื่ออ่านเต็มและตรวจข้อมูลล่าสุดก่อนเดินทาง</p>
+    <p><b>รายละเอียดงาน</b> — สรุปสั้นดึงจากหน้างานของผู้จัด กดชื่องานเพื่อเปิดหน้างานเดิมอ่านเต็มและตรวจข้อมูลล่าสุดก่อนเดินทาง</p>
     <p><b>ติดตั้งบนมือถือ</b> — iOS: แชร์ → เพิ่มไปที่หน้าจอโฮม · Android: เมนู → ติดตั้งแอป</p>
     <p><b>ข้อจำกัด</b> — ข้อมูลจากแหล่งสาธารณะ งานอาจเลื่อน/ยกเลิกได้ โปรดตรวจสอบกับผู้จัดก่อนเดินทาง</p>
+    <div class="aboutgrp"><b>เกี่ยวกับข้อมูล</b>
+    <ul>
+      <li>อัปเดตล่าสุด: %s</li>
+      <li>แหล่งข้อมูล: %s</li>
+      <li>วันหยุด/วันสำคัญ: ปฏิทิน Google สาธารณะ (วันหยุดราชการไทย)</li>
+      <li>งานรอตรวจ (อาจซ้ำ/ข้อมูลไม่ครบ): %d รายการ</li>
+      <li>วันที่ไม่แสดงในรายการ = ไม่มีงานในปฏิทิน</li>
+      <li>สรุปรายละเอียดงานดึงจากหน้าเว็บของผู้จัดโดยอัตโนมัติ</li>
+      <li>การใช้งาน: นับ page view และการกดลิงก์ แบบไม่ใช้คุกกี้ ไม่ระบุตัวตน</li>
+    </ul>
+    <p style="margin-bottom:0">เป็นข้อมูลเพื่อการวางแผน ไม่ใช่ข้อมูลทางการของอิมแพ็ค</p></div>
   </div>
-</div>''') % weeks)
+</div>''') % (weeks, dt.datetime.now().strftime("%d/%m/%Y %H:%M"), ", ".join(srcs), queued))
     parts.append('<footer>ImpactGo · ข้อมูลจาก impact.co.th · ไม่ใช่ข้อมูลทางการของอิมแพ็ค</footer>')
     parts.append(
         "<script>"
