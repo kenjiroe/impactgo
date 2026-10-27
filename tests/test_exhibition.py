@@ -5,17 +5,20 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app import parse_exhibition as X  # noqa: E402
 
 
-def row(title, menu="", times=("2027-01-16T00:00:00.000Z", "2027-01-17T00:00:00.000Z")):
+def row(title, menu="", times=("2027-01-16T00:00:00.000Z", "2027-01-17T00:00:00.000Z"), slug=None):
     return {"id": 33045, "attributes": {"title": title, "menu_of_event": menu,
-                                        "event_time": list(times),
+                                        "event_time": list(times), "seo_slug": slug,
                                         "place": "อิมแพ็ค อารีน่า เมืองทองธานี"}}
 
 
 def main():
     # world tour ต้องเป็น concert แม้ title ไม่มีคำว่า concert (บั๊ก 16 ม.ค. 2027)
-    e = X._map(row("Stray Kids World Tour <RUN IT BANGKOK>"))
+    e = X._map(row("Stray Kids World Tour <RUN IT BANGKOK>", slug="stray-kids-world-tour-run-it-bangkok-2570"))
     assert e and e["category"] == "concert" and e["venue_code"] == "ARENA"
     assert e["start"].isoformat() == "2027-01-16" and e["end"].isoformat() == "2027-01-17"
+    # ลิงก์หน้างานจาก seo_slug + id — ไม่มี slug = ไม่มีลิงก์
+    assert e["url"] == "https://www.thailandexhibition.com/thai-trade-show-details/stray-kids-world-tour-run-it-bangkok-2570/33045", e["url"]
+    assert X._map(row("งานไม่มี slug"))["url"] == ""
     assert X._map(row("Dua Lipa Radical Optimism Tour"))["category"] == "concert"
     assert X._map(row("NuNew 1st Concert “DREAM CATCHER”"))["category"] == "concert"
     # หมวดจาก API ภาษาไทย / trade / งานแฟร์ทั่วไป

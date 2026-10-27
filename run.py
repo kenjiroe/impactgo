@@ -114,7 +114,12 @@ def main():
         ex_events = [e for e in parse_exhibition.fetch_events(since=today - dt.timedelta(days=1)) if e["end"] >= today]
         added, merged, queued = 0, 0, 0
         for e in ex_events:
-            if db.find_by_source_ref(con, ex_src, e["source_ref"]):
+            known = db.find_by_source_ref(con, ex_src, e["source_ref"])
+            if known:
+                # backfill ลิงก์หน้างานให้งานเดิม (งานแรก ๆ เก็บมาตอน API ไม่ map url)
+                if e["url"]:
+                    con.execute("UPDATE event SET detail_url=? WHERE id=? AND (detail_url IS NULL OR detail_url='')",
+                                (e["url"], known))
                 continue
             cands = db.find_candidates_by_dates(con, e["start"], e["end"])
             best, best_sim = None, 0.0

@@ -69,9 +69,12 @@ def _map(row):
     else:
         cat = "public_fair"
     hall_from, hall_to = N.hall_range(place)
+    slug = (at.get("seo_slug") or "").strip()
+    url = ("https://www.thailandexhibition.com/thai-trade-show-details/%s/%s" % (slug, row.get("id"))
+           if slug and row.get("id") else "")
     return {
         "source_ref": "id:%s" % row.get("id"),
-        "url": "",
+        "url": url,
         "title": title,
         "date_text": "%s → %s" % (start.isoformat(), end.isoformat()),
         "start": start,
