@@ -46,6 +46,7 @@ def identity_hash(title, venue_code, start):
 
 def upsert_event(con, ev, src_id, verified=None):
     vid, _ = venue_id(con, ev["venue_code"])
+    cat = N.fix_category(ev["category"], ev["venue_code"])
     ih = identity_hash(ev["title"], ev["venue_code"], ev["start"])
     con.execute(
         """
@@ -63,7 +64,7 @@ def upsert_event(con, ev, src_id, verified=None):
         """,
         (ih, ev["title"], N.normalize_title(ev["title"]), vid, ev["hall_from"], ev["hall_to"],
          "high" if ev["hall_from"] else "low", ev["start"].isoformat(), ev["end"].isoformat(),
-         "default", ev["category"], ev["audience"], ev["is_free"], ev["price_min"], ev["price_max"],
+         "default", cat, ev["audience"], ev["is_free"], ev["price_min"], ev["price_max"],
          ev["url"], "confirmed", "high" if ev["venue_code"] != "OTHER" else "medium", verified),
     )
     row = con.execute("SELECT id FROM event WHERE identity_hash=?", (ih,)).fetchone()

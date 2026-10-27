@@ -15,6 +15,12 @@ def main():
     assert N.hall_range("ฮอลล์ 5-6") == (5, 6)
     assert N.token_sim("บ้านและสวนแฟร์ Living Festival 2026", "บ้านและสวนแฟร์ LIVING FESTIVAL 2026") > 0.9
     assert N.token_sim("Thailand Mobile Expo 2026 & AI Expo 2026", "Thailand Mobile EXPO 2026") > 0.6
+    # กฎ ARENA: งานที่อารีน่าแท็กแฟร์/ไม่ระบุ = คอนเสิร์ต (เคสจริง Maroon 5 Asia 2027) — อย่างอื่นไม่แตะ
+    assert N.fix_category("public_fair", "ARENA") == "concert"
+    assert N.fix_category("unknown", "ARENA") == "concert"
+    assert N.fix_category("concert", "ARENA") == "concert"
+    assert N.fix_category("trade", "ARENA") == "trade"
+    assert N.fix_category("public_fair", "EXHIBITION") == "public_fair"
     print("PASS: normalize")
 
 

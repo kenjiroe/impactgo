@@ -104,6 +104,14 @@ def price_info(text: str):
     return None, None, None
 
 
+def fix_category(category: str, venue_code: str) -> str:
+    """กฎเสริมหมวดงาน: อารีน่าแทบจัดเฉพาะการแสดง — งานที่อารีน่าแต่แท็กแฟร์/ไม่ระบุ = คอนเสิร์ต
+    (เคสจริง: Maroon 5 Asia 2027 จาก API exhibition ถูกแท็ก public_fair)"""
+    if venue_code == "ARENA" and category in ("public_fair", "unknown"):
+        return "concert"
+    return category
+
+
 def normalize_title(t: str) -> str:
     s = (t or "").lower()
     s = re.sub(r"[\u200b-\u200f]", "", s)
