@@ -59,7 +59,7 @@ def _card_html(week_start, rows, level, total, ongoing, strip):
     strip_html = "".join('<div class="c lv%d"><span>%s</span><b>%d</b></div>' % (l, TH_D[d.weekday()], d.day) for d, l in strip)
     ong = ""
     if ongoing:
-        ong = '<div class="ongoing">กำลังจัดในสัปดาห์นี้: %s</div>' % html.escape(
+        ong = '<div class="ongoing">งานต่อเนื่องในสัปดาห์นี้: %s</div>' % html.escape(
             ", ".join("%s (ถึง %s)" % (e["title"], e["end_date"][8:10] + "/" + e["end_date"][5:7]) for e in ongoing[:2]))
     return """<!doctype html><html lang="th"><head><meta charset="utf-8"><style>%s%s</style></head><body>
 <div class="top"><div><h1>ปฏิทินงาน เมืองทองธานี</h1><div class="sub">สัปดาห์ที่ %d · %s</div></div>

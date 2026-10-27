@@ -408,7 +408,9 @@ def build(con, today: dt.date, weeks: int = 8):
             starts = [e for e in items if e["start_date"] == dd]
             ongoing = [e for e in items if e["start_date"] < dd]
             if ongoing:
-                parts.append('<div class="ongoing">กำลังจัดอยู่</div>')
+                # วันนี้ = กำลังจัดอยู่จริง · วันอื่น (อนาคต) = งานต่อเนื่อง กันสื่อสารผิดกาลเวลา
+                olabel = "กำลังจัดอยู่" if dd == today else "งานต่อเนื่อง"
+                parts.append('<div class="ongoing">%s</div>' % olabel)
                 for e in ongoing:
                     ttl = ('<a href="%s" target="_blank" rel="noopener" data-goatcounter-click="detail">%s</a>'
                            % (esc(e["detail_url"]), esc(e["title"]))) if e["detail_url"] else esc(e["title"])
